@@ -80,7 +80,7 @@ pre_save.connect(pre_save_signal_receiver, sender=Problem)
 class Solution(AbstractBase):
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')
     lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python')
-    content = models.TextField()
+    code = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

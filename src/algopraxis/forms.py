@@ -3,7 +3,7 @@
 from django import forms
 # App modules
 from .models import Problem, Solution, TestCase
-from src.parts.widgets import CodeTextWidget
+from parts.widgets import CodeTextWidget
 from . import LANG_MODE
 
 class ProblemForm(forms.ModelForm):
@@ -19,17 +19,17 @@ class ProblemForm(forms.ModelForm):
         ]
 
 class SolutionForm(forms.ModelForm):
-    content = forms.CharField(widget=CodeTextWidget())
+    code = forms.CharField(widget=CodeTextWidget())
     class Meta:
         model = Solution
         fields = [
             'lang_mode',
-            'content',
+            'code',
         ]
 
     def __init__(self, *args, **kwargs):
         super(SolutionForm, self).__init__(*args, **kwargs)
-        self.lang_mode.widget.attrs.update({'onchange': 'update_code_mode(this)'})
+        self.fields['lang_mode'].widget.attrs.update({'onchange': 'update_code_mode(this)'})
 
 class TestCaseForm(forms.ModelForm):
     class Meta:
