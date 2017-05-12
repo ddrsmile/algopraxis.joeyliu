@@ -31,7 +31,7 @@ class CodeTextWidget(BaseWidget, widgets.Textarea):
             }}
             // get the information used to create ace editor for each block
             var code_value_id = "{id!s}"
-            var mode_value_id = code_value_id.replace("code", "language");
+            var mode_value_id = code_value_id.replace("code", "lang_mode");
             var code = document.getElementById(code_value_id);
             var mode = document.getElementById(mode_value_id).value;
             // mode_map is defined in aes_utils.jp
@@ -45,9 +45,9 @@ class CodeTextWidget(BaseWidget, widgets.Textarea):
 
             // setup editor
             _editor.$blockScrolling = Infinity;
-            _editor.container.style.height = "300px"
-            _editor.container.style.weight = "100%"
-            _editor.resize()
+            _editor.container.style.height = "300px";
+            _editor.container.style.weight = "100%";
+            _editor.resize();
             _editor.setTheme("ace/theme/chrome");
             _editor.setShowPrintMargin(false);
             _editor.setFontSize(13);
@@ -71,12 +71,8 @@ class CodeTextWidget(BaseWidget, widgets.Textarea):
 
     @property
     def media(self):
-        js = [
-            static('parts/simplemde/simplemde.min.js'),
-            static('parts/simplemde/utils/markdown_latex_support.js'),
-        ]
-        css = {
-            'all': [
-                static('parts/simplemde/simplemde.min.css'),
-            ]}
-        return Media(js=js, css=css)
+        js = (
+            static('parts/ace/ace.js'),
+            static('parts/ace/utils.js'),
+        )
+        return Media(js=js)

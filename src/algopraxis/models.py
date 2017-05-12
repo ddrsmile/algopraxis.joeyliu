@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils.safestring import mark_safe
 from . import PARSER_TYPE, PARSE_AS_TYPE, LANG_MODE
 
@@ -25,7 +26,6 @@ class CustomManager(models.Manager):
 class AbstractBase(models.Model):
     def __init__(self, *args, **kwargs):
         super(AbstractBase, self).__init__(*args, **kwargs)
-    id = models.AutoField(primary_key=True)
     objects = CustomManager()
 
     class Meta:
@@ -37,7 +37,7 @@ class ProblemTag(TaggedItemBase):
 class Problem(AbstractBase):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
     prob_no = models.IntegerField(unique=True)
-    prob_title = models.CharField(max_length=255, blank=False, unique=True)
+    title = models.CharField(max_length=255, blank=False, unique=True)
     slug = models.SlugField(unique=True)
     prob_content = models.TextField()
     sol_method_name = models.CharField(max_length=255, blank=False)
@@ -48,10 +48,10 @@ class Problem(AbstractBase):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return u"No: {prob_no} - Title: {prob_title}".format(prob_no=self.prob_no, prob_title=self.prob_title)
+        return u"No: {prob_no} - Title: {title}".format(prob_no=self.prob_no, title=self.title)
 
     def get_abs_url(self):
-        return reverse('problems:detail', kwargs={'slug': self.slug})
+        return reverse('algopraxis:detail', kwargs={'slug': self.slug})
 
     def get_markdown_prob_content(self):
         extensions = ["markdown.extensions.extra", "codehilite"]
@@ -63,7 +63,7 @@ class Problem(AbstractBase):
 
 def create_slug(instance, new_slug=None):
     slug = new_slug or slugify(instance.title)
-    qs = Problem.objects.order_by(id)
+    qs = Problem.objects.order_by("id")
     exists = qs.filter(slug=slug).exists()
     if exists:
         # added instance's id to the slug if the slug is existing.
@@ -71,11 +71,10 @@ def create_slug(instance, new_slug=None):
         return create_slug(instance=instance, new_slug=new_slug)
     return slug
 
+@receiver(pre_save, sender=Problem)
 def pre_save_signal_receiver(sender, instance, *args, **kwargs):
     if not instance.slug:
         instance.slug = create_slug(instance)
-
-pre_save.connect(pre_save_signal_receiver, sender=Problem)
 
 class Solution(AbstractBase):
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')

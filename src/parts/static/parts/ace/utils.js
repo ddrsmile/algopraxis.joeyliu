@@ -10,7 +10,7 @@ mode_map = {
 }
 function update_code_mode(obj) {
     var choice_id = obj.id;
-    var editor_id = choice_id.replace("language", "code");
+    var editor_id = choice_id.replace("lang_mode", "code");
     var code_mode = "ace/mode/" + mode_map[obj.value];
     var _editor = window.ACEInstances?window.ACEInstances[editor_id]:null;
     if (_editor) _editor.getSession().setMode(code_mode);

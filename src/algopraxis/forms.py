@@ -4,14 +4,13 @@ from django import forms
 # App modules
 from .models import Problem, Solution, TestCase
 from parts.widgets import CodeTextWidget
-from . import LANG_MODE
 
 class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
         fields = [
             'prob_no',
-            'prob_title',
+            'title',
             'prob_content',
             'sol_method_name',
             'input_parser_type',

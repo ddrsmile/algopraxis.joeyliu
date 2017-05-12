@@ -29,7 +29,7 @@ class AlgopraxisView(View):
             probs = paginator.page(paginator.num_pages)
 
         context = {'probs': probs}
-        template = 'alogpraxis/problem_list.html'
+        template = 'algopraxis/problem_list.html'
         return render(request, template, context)
 
 class ProblemCreateView(View):
@@ -38,7 +38,7 @@ class ProblemCreateView(View):
             return Http404
         form = ProblemForm()
         context = {'form': form}
-        template = 'alogpraxis/problem_form.html'
+        template = 'algopraxis/problem_form.html'
         return render(request, template, context)
 
     def post(self, request, *args, **kwargs):
@@ -53,7 +53,7 @@ class ProblemCreateView(View):
         else:
             messages.error(request, "Problem was not created successfully...")
             context = {'form': form}
-            template = 'alogpraxis/problem_form.html'
+            template = 'algopraxis/problem_form.html'
             return render(request, template, context)
 
 class ProblemUpdateView(View):
@@ -63,7 +63,7 @@ class ProblemUpdateView(View):
         problem = get_object_or_404(Problem, slug=slug)
         form = ProblemForm(instance=problem)
         context = { 'form': form }
-        template = 'alogpraxis/problem_form.html'
+        template = 'algopraxis/problem_form.html'
 
         return render(request, template, context)
 
@@ -80,7 +80,7 @@ class ProblemUpdateView(View):
         else:
             messages.error(request, "Problem was not updated successfully...")
             context = {'form': form}
-            template = 'alogpraxis/problem_form.html'
+            template = 'algopraxis/problem_form.html'
             return render(request, template, context)
 
 class ProblemDeleteView(View):
@@ -88,7 +88,7 @@ class ProblemDeleteView(View):
         problem = get_object_or_404(Problem, slug=slug)
         problem.delete()
         messages.success(request, "Problem has been deleted successfully...")
-        return redirect('problem:list')
+        return redirect('algopraxis:list')
 
 class ProblemDetail(View):
     def get(self, request, slug=None, *args, **kwargs):
@@ -100,7 +100,7 @@ class ProblemDetail(View):
             'problem': problem,
             'form': form
         }
-        template = 'alogpraxis/problem_detail.html'
+        template = 'algopraxis/problem_detail.html'
 
         return render(request, template, context)
 
@@ -122,7 +122,7 @@ class SolutionSaveView(View):
                 'problem': problem,
                 'form': form
             }
-            template = 'alogpraxis/problem_detail.html'
+            template = 'algopraxis/problem_detail.html'
 
             return render(request, template, context)
 
