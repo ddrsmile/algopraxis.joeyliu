@@ -8,15 +8,47 @@ from django.core.urlresolvers import reverse
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.safestring import mark_safe
-from . import PARSER_TYPE, PARSE_AS_TYPE, LANG_MODE
 
 # 3rd party
 from markdown import markdown
 from taggit.models import TaggedItemBase
 from taggit.managers import TaggableManager
 
+# choice options
+DIFFICULTY = (
+    (1, 'EASY'),
+    (2, 'MEDIUM'),
+    (3, 'HARD')
+)
+
+PARSER_TYPE = (
+    (1, 'INTEGER'),
+    (2, 'FLOAT'),
+    (3, 'STRING')
+)
+
+PARSING_METHOD = (
+    (1, 'SINGLE VALUE'),
+    (2, 'LIST'),
+    (3, 'LISTS'),
+    (4, 'MATRIX'),
+)
+
+EXTERNAL_OBJECT = (
+    ('None', 'None'),
+    ('ListNode', 'ListNode'),
+    ('TreeNode', 'TreeNode'),
+    ('Interval', 'Interval'),
+)
+
+LANG_MODE = (
+    ('python3', 'Python3'),
+    ('java', 'Java'),
+    ('cpp', 'C++'),
+)
+
 class CustomManager(models.Manager):
-    def first(self, *args, **kwargs):
+    def first(self):
         qs = super(CustomManager, self).all()
         try:
             return qs[0]
@@ -35,17 +67,22 @@ class ProblemTag(TaggedItemBase):
     content_object = models.ForeignKey('Problem')
 
 class Problem(AbstractBase):
+    # basic information
     user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
     prob_no = models.IntegerField(unique=True)
     title = models.CharField(max_length=255, blank=False, unique=True)
     slug = models.SlugField(unique=True)
-    prob_content = models.TextField()
-    sol_method_name = models.CharField(max_length=255, blank=False)
-    input_parser_type = models.IntegerField(choices=PARSER_TYPE, default=1)
-    parse_as_type = models.IntegerField(choices=PARSE_AS_TYPE, default=1)
+    difficulty = models.IntegerField(choices=DIFFICULTY, default=1)
+    content = models.TextField()
     tags = TaggableManager(through=ProblemTag, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # solution
+    solution_method_name = models.CharField(max_length=255, blank=False)
+    ext_obj = models.CharField(max_length=40, choices=EXTERNAL_OBJECT, default='none')
+    # input parser
+    input_parser_type = models.IntegerField(choices=PARSER_TYPE, default=1)
+    parsing_method = models.IntegerField(choices=PARSING_METHOD, default=1)
 
     def __str__(self):
         return u"No: {prob_no} - Title: {title}".format(prob_no=self.prob_no, title=self.title)
@@ -55,8 +92,11 @@ class Problem(AbstractBase):
 
     def get_markdown_prob_content(self):
         extensions = ["markdown.extensions.extra", "codehilite"]
-        marked_content = markdown(self.prob_content, extensions=extensions)
+        marked_content = markdown(self.content, extensions=extensions)
         return mark_safe(marked_content)
+
+    def get_tags_list(self):
+        return self.tags.values_list('name', flat=True)
 
     class Meta:
         ordering = ['prob_no']
@@ -78,7 +118,7 @@ def pre_save_signal_receiver(sender, instance, *args, **kwargs):
 
 class Solution(AbstractBase):
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')
-    lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python')
+    lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python3')
     code = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'taggit',
     # app
     'algopraxis',
+    'coderunner',
     'parts'
 ]
 
@@ -37,12 +38,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'project.urls'
-
+print(os.path.join(PROJECT_DIR, 'templates'))
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(PROJECT_DIR, 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

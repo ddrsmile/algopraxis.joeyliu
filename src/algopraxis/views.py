@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+import json
 from django.contrib import messages
-from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -10,26 +10,28 @@ from .models import Problem, Solution, TestCase
 from .forms import ProblemForm, SolutionForm, TestCaseForm
 
 
-class AlgopraxisView(View):
+class ProblemListView(View):
     def get(self, request, *args, **kwargs):
-        probs = Problem.objects.all()
-
-        tag = request.GET.get('tag')
-
-        if tag:
-            probs = probs.filter(tags__name=tag)
-
-        paginator = Paginator(probs, 6)
+        problems = Problem.objects.all()
+        paginator = Paginator(problems, 20)
         page = request.GET.get('page')
         try:
-            probs = paginator.page(page)
+            problems = paginator.page(page)
         except PageNotAnInteger:
-            probs = paginator.page(1)
+            problems = paginator.page(1)
         except EmptyPage:
-            probs = paginator.page(paginator.num_pages)
+            problems = paginator.page(paginator.num_pages)
 
-        context = {'probs': probs}
-        template = 'algopraxis/problem_list.html'
+        context = {'problems': problems}
+        template = 'algopraxis/problem/list.html'
+        return render(request, template, context)
+
+class ProblemTaggedListView(View):
+    def get(self, request, tag=None, *args, **kwargs):
+        problems = Problem.objects.all()
+        problems.filter(tags__name=tag)
+        context = {'tag': tag, 'problems': problems}
+        template = 'algopraxis/problem/tagged_list.html'
         return render(request, template, context)
 
 class ProblemCreateView(View):
@@ -38,7 +40,7 @@ class ProblemCreateView(View):
             return Http404
         form = ProblemForm()
         context = {'form': form}
-        template = 'algopraxis/problem_form.html'
+        template = 'algopraxis/problem/form.html'
         return render(request, template, context)
 
     def post(self, request, *args, **kwargs):
@@ -53,7 +55,7 @@ class ProblemCreateView(View):
         else:
             messages.error(request, "Problem was not created successfully...")
             context = {'form': form}
-            template = 'algopraxis/problem_form.html'
+            template = 'algopraxis/problem/form.html'
             return render(request, template, context)
 
 class ProblemUpdateView(View):
@@ -63,7 +65,7 @@ class ProblemUpdateView(View):
         problem = get_object_or_404(Problem, slug=slug)
         form = ProblemForm(instance=problem)
         context = { 'form': form }
-        template = 'algopraxis/problem_form.html'
+        template = 'algopraxis/problem/form.html'
 
         return render(request, template, context)
 
@@ -80,7 +82,7 @@ class ProblemUpdateView(View):
         else:
             messages.error(request, "Problem was not updated successfully...")
             context = {'form': form}
-            template = 'algopraxis/problem_form.html'
+            template = 'algopraxis/problem/form.html'
             return render(request, template, context)
 
 class ProblemDeleteView(View):
@@ -92,15 +94,17 @@ class ProblemDeleteView(View):
 
 class ProblemDetail(View):
     def get(self, request, slug=None, *args, **kwargs):
-        if not request.user.is_authenticated():
-            return Http404
-        problem = get_object_or_404(Problem, slug=slug)
-        form = SolutionForm()
+        problem = get_object_or_404(Problem, user=request.user, slug=slug)
+        solution = problem.solutions.first()
+        testcase = problem.testcases.first()
+        solution_form = SolutionForm(instance=solution)
+        testcase_form = TestCaseForm(instance=testcase)
         context = {
             'problem': problem,
-            'form': form
+            'solution_form': solution_form,
+            'testcase_form': testcase_form
         }
-        template = 'algopraxis/problem_detail.html'
+        template = 'algopraxis/problem/detail.html'
 
         return render(request, template, context)
 
@@ -110,19 +114,40 @@ class SolutionSaveView(View):
             return Http404
         problem = get_object_or_404(Problem, user=request.user, slug=slug)
         solution = problem.solutions.first()
-        form = SolutionForm(request.POST, instance=solution)
-        if form.is_valid():
-            solution = form.save(commit=False)
+        solution_form = SolutionForm(request.POST, instance=solution)
+        if solution_form.is_valid():
+            solution = solution_form.save(commit=False)
+            if not solution.problem_id:
+                solution.problem = problem
             solution.save()
-            messages.success(request, "Solution has been successfully updated...")
+            return HttpResponse({})
+        else:
+            emsgs = json.dumps(solution_form.errors)
+            return HttpResponse(emsgs, status=400, content_type='application/json')
+
+class TestCaseSaveView(View):
+    def post(self, request, slug=None, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return Http404
+        problem = get_object_or_404(Problem, user=request.user, slug=slug)
+        solution = problem.solutions.first()
+        testcase = problem.testcases.first()
+        solution_form = SolutionForm(instance=solution)
+        testcase_form = TestCaseForm(request.POST, instance=testcase)
+        if testcase_form.is_valid():
+            testcase = testcase_form.save(commit=False)
+            if not testcase.problem_id:
+                testcase.problem = problem
+            testcase.save()
+            messages.success(request, "Test cases has been successfully updated...")
             return HttpResponseRedirect(problem.get_abs_url())
         else:
-            messages.error(request, "Problem was not updated successfully...")
+            messages.error(request, "Test cases was not updated successfully...")
             context = {
                 'problem': problem,
-                'form': form
+                'solution_form': solution_form,
+                'testcase_form': testcase_form
             }
-            template = 'algopraxis/problem_detail.html'
+            template = 'algopraxis/problem/detail.html'
 
             return render(request, template, context)
-

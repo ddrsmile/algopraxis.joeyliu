@@ -11,11 +11,19 @@ class ProblemForm(forms.ModelForm):
         fields = [
             'prob_no',
             'title',
-            'prob_content',
-            'sol_method_name',
+            'difficulty',
+            'content',
+            'solution_method_name',
             'input_parser_type',
-            'parse_as_type',
+            'parsing_method',
+            'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(ProblemForm, self).__init__(*args, **kwargs)
+
+        for _, field_item in self.fields.items():
+            field_item.widget.attrs.update({'class': 'form-control'})
 
 class SolutionForm(forms.ModelForm):
     code = forms.CharField(widget=CodeTextWidget())
@@ -28,7 +36,8 @@ class SolutionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SolutionForm, self).__init__(*args, **kwargs)
-        self.fields['lang_mode'].widget.attrs.update({'onchange': 'update_code_mode(this)'})
+        self.fields['lang_mode'].widget.attrs.update({'onchange': 'update_code_mode(this)',
+                                                      'class': 'form-control'})
 
 class TestCaseForm(forms.ModelForm):
     class Meta:
@@ -36,3 +45,7 @@ class TestCaseForm(forms.ModelForm):
         fields = [
             'content',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(TestCaseForm, self).__init__(*args, **kwargs)
+        self.fields['content'].widget.attrs.update({'class': 'form-control'})

@@ -34,7 +34,7 @@ class CodeTextWidget(BaseWidget, widgets.Textarea):
             var mode_value_id = code_value_id.replace("code", "lang_mode");
             var code = document.getElementById(code_value_id);
             var mode = document.getElementById(mode_value_id).value;
-            // mode_map is defined in aes_utils.jp
+            // mode_map is defined in aes/utils.jp
             mode = mode_map[mode];
             var code_panel = document.createElement("div");
             code.parentElement.appendChild(code_panel);
@@ -51,6 +51,7 @@ class CodeTextWidget(BaseWidget, widgets.Textarea):
             _editor.setTheme("ace/theme/chrome");
             _editor.setShowPrintMargin(false);
             _editor.setFontSize(13);
+            _editor.setStyle("editor");
 
             // setup editor session
             _editor.getSession().setUseWorker(false);
