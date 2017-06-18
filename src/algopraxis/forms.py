@@ -13,9 +13,8 @@ class ProblemForm(forms.ModelForm):
             'title',
             'difficulty',
             'content',
-            'solution_method_name',
-            'input_parser_type',
-            'parsing_method',
+            'main_file_code',
+            'solution_start_code',
             'tags',
         ]
 

@@ -15,25 +15,28 @@
         border-radius: 4px;
     }
 </style>
-<form id="sol-form" class="form-horizontal" role="form" method="POST" action="{% url 'algopraxis:save_solution' slug=problem.slug %}" novalidate>
-
+<form id="solution-form" class="form-horizontal" role="form" method="POST" action="" novalidate>
     {% for field in solution_form %}
         <div class="form-group">
             <div>{{ field }}</div>
         </div>
     {% endfor %}
 </form>
-<button class="btn btn-default" type="button" onclick="save_solution()">Save Solution</button>
+<button class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()">Save Solution</button>
 <hr/>
-<form class="form-horizontal" role="form" method="POST" action="{% url 'algopraxis:save_testcase' slug=problem.slug %}" novalidate>
-    {% csrf_token %}
+<form id="testcases-form" class="form-horizontal" role="form" method="POST" action="" novalidate>
     {% for field in testcase_form %}
         <div class="form-group">
             <div>{{ field }}</div>
         </div>
     {% endfor %}
-    <button class="btn btn-default" type="submit">Save Test Cases</button>
 </form>
+<button class="btn btn-default" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_testcases()">Save Test Cases</button>
+
+<button class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="run()">Run</button>
+
+<div class="result"></div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -70,9 +73,50 @@
         $.ajax({
             type: "post",
             url: "{% url 'algopraxis:save_solution' slug=problem.slug %}",
-            data: $('#sol-form').serialize(),
+            data: $('#solution-form').serialize(),
             success: function(result) {
-                alert('saved');
+                alert('solution saved');
+            },
+            error: function(xhr, emsgs, err) {
+                alert(emsgs);
+                alert(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    };
+
+    function save_testcases() {
+        $.ajax({
+            type: "post",
+            url: "{% url 'algopraxis:save_testcase' slug=problem.slug %}",
+            data: $('#testcases-form').serialize(),
+            success: function(result) {
+                alert('testcases saved');
+            },
+            error: function(xhr, emsgs, err) {
+                alert(emsgs);
+                alert(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    }
+    var kkk;
+    function run() {
+        var post_data = {};
+        post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
+        post_data["code"] = $("#solution-form").find("#id_code").text()
+        post_data["testcases"] = $("#testcases-form").find("#id_content").text();
+
+        $.ajax({
+            type: "post",
+            url: "{% url 'algopraxis:run' slug=problem.slug %}",
+            data: post_data,
+            success: function(result) {
+                var k = $('.result');
+                kkk = result;
+                $.each(result, function() {
+
+                    k.append('<p>' + this + '</p>');
+
+                });
             },
             error: function(xhr, emsgs, err) {
                 alert(emsgs);

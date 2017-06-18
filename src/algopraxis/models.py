@@ -68,7 +68,6 @@ class ProblemTag(TaggedItemBase):
 
 class Problem(AbstractBase):
     # basic information
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
     prob_no = models.IntegerField(unique=True)
     title = models.CharField(max_length=255, blank=False, unique=True)
     slug = models.SlugField(unique=True)
@@ -78,11 +77,8 @@ class Problem(AbstractBase):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # solution
-    solution_method_name = models.CharField(max_length=255, blank=False)
-    ext_obj = models.CharField(max_length=40, choices=EXTERNAL_OBJECT, default='none')
-    # input parser
-    input_parser_type = models.IntegerField(choices=PARSER_TYPE, default=1)
-    parsing_method = models.IntegerField(choices=PARSING_METHOD, default=1)
+    main_file_code = models.TextField()
+    solution_start_code = models.TextField()
 
     def __str__(self):
         return u"No: {prob_no} - Title: {title}".format(prob_no=self.prob_no, title=self.title)
@@ -117,6 +113,7 @@ def pre_save_signal_receiver(sender, instance, *args, **kwargs):
         instance.slug = create_slug(instance)
 
 class Solution(AbstractBase):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')
     lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python3')
     code = models.TextField()

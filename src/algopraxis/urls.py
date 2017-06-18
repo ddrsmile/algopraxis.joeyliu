@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^(?P<slug>[\w-]+)/delete/$', views.ProblemDeleteView.as_view(), name='delete'),
     url(r'^(?P<slug>[\w-]+)/save_solution/$', views.SolutionSaveView.as_view(), name='save_solution'),
     url(r'^(?P<slug>[\w-]+)/save_testcase/$', views.TestCaseSaveView.as_view(), name='save_testcase'),
+    url(r'^(?P<slug>[\w-]+)/run/$', views.RunView.as_view(), name='run'),
 ]
