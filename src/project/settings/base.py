@@ -18,6 +18,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 3rd party
+    'taggit',
+    # app
+    'algopraxis',
+    'coderunner',
+    'parts'
 ]
 
 MIDDLEWARE = [
@@ -32,12 +38,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'project.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(PROJECT_DIR, 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -62,6 +67,13 @@ DB_INFO = next(DB_INFO)
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+"""
+DATABASES = {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': DB_INFO[0],
         'USER': DB_INFO[1],
@@ -74,6 +86,7 @@ DATABASES = {
 
     }
 }
+"""
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

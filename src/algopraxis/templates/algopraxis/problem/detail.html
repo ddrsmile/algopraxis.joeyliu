@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% block extrahead %}
+    {{ solution_form.media }}
+{% endblock %}
+<h1>{{ problem.title }}</h1>
+
+<div>
+    {{ problem.get_markdown_prob_content }}
+</div>
+<style type="text/css">
+    .editor {
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+</style>
+<form id="solution-form" class="form-horizontal" role="form" method="POST" action="" novalidate>
+    {% for field in solution_form %}
+        <div class="form-group">
+            <div>{{ field }}</div>
+        </div>
+    {% endfor %}
+</form>
+<button class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()">Save Solution</button>
+<hr/>
+<form id="testcases-form" class="form-horizontal" role="form" method="POST" action="" novalidate>
+    {% for field in testcase_form %}
+        <div class="form-group">
+            <div>{{ field }}</div>
+        </div>
+    {% endfor %}
+</form>
+<button class="btn btn-default" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_testcases()">Save Test Cases</button>
+
+<button class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="run()">Run</button>
+
+<div class="result"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+       return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    function save_solution() {
+
+        $.ajax({
+            type: "post",
+            url: "{% url 'algopraxis:save_solution' slug=problem.slug %}",
+            data: $('#solution-form').serialize(),
+            success: function(result) {
+                alert('solution saved');
+            },
+            error: function(xhr, emsgs, err) {
+                alert(emsgs);
+                alert(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    };
+
+    function save_testcases() {
+        $.ajax({
+            type: "post",
+            url: "{% url 'algopraxis:save_testcase' slug=problem.slug %}",
+            data: $('#testcases-form').serialize(),
+            success: function(result) {
+                alert('testcases saved');
+            },
+            error: function(xhr, emsgs, err) {
+                alert(emsgs);
+                alert(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    }
+    var kkk;
+    function run() {
+        var post_data = {};
+        post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
+        post_data["code"] = $("#solution-form").find("#id_code").text()
+        post_data["testcases"] = $("#testcases-form").find("#id_content").text();
+
+        $.ajax({
+            type: "post",
+            url: "{% url 'algopraxis:run' slug=problem.slug %}",
+            data: post_data,
+            success: function(result) {
+                var k = $('.result');
+                kkk = result;
+                $.each(result, function() {
+
+                    k.append('<p>' + this + '</p>');
+
+                });
+            },
+            error: function(xhr, emsgs, err) {
+                alert(emsgs);
+                alert(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    };
+</script>
+{% endblock %}
