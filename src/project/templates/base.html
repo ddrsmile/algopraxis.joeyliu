@@ -1,39 +1,189 @@
 {% load static %}
-
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<html>
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>{% block title %}ALGOPRAXIS{% endblock %}{% block title_suffix %}{% endblock %}</title>
-        <meta name="description" content={% block descript_block %}"This is my website where I share my experiences of Django, Wagtail, and other techniques with portfolios. And the projects I have done during Udacity Nanodegree."{% endblock %} />
+        <title>{% block title %}Joey LIU | ALGOPRAXIS{% endblock %}{% block title_suffix %}{% endblock %}</title>
+        <meta name="description" content="" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        {# Global stylesheets #}
+        <meta name="description" content="" />
         <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
-        <link rel="stylesheet" type="text/css" href="{% static 'css/project.css' %}">
-
-        {% block extra_css %}
-            {# Override this in templates to add extra stylesheets #}
-        {% endblock %}
+        <style type="text/css">
+            @font-face {
+                font-family: 'anurati';
+                font-style: normal;
+                font-weight: 400;
+                src: local('anurati'), url({% static "fonts/anurati.otf" %}) format('opentype');
+                unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+            }
+            html {
+                -ms-text-size-adjust: 100%;
+                -webkit-text-size-adjust: 100%;
+                font-size: 20px;
+                box-sizing: border-box;
+            }
+            *, *:before, *:after {
+              box-sizing: inherit;
+            }
+            body {
+                position: relative;
+                overflow-x: hidden;
+                height: 100%;
+                font-family: 'Open Sans', sans-serif;
+                color: #3D3D3D;
+                font-size: 0.8rem;
+                line-height: 1.5;
+            }
+            h1 {
+                font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+                font-size: 2rem;
+                color: #A9353B;
+            }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.17rem; }
+            h4 { font-size: 1.12rem; }
+            h5 { font-size: .83rem; }
+            h6 { font-size: .75rem; }
+            hr.custom {
+                text-align: center;
+                border: 0;
+                height: 1px;
+                background-image: linear-gradient(to right, rgba(169, 53, 59, 0), rgba(169, 53, 59, 0.80), rgba(169, 53, 59, 0));
+                background-image: -webkit-linear-gradient(left, rgba(169, 53, 59, 0), rgba(169, 53, 59, 0.80), rgba(169, 53, 59, 0));
+                background-image: -moz-linear-gradient(left, rgba(169, 53, 59, 0), rgba(169, 53, 59, 0.80), rgba(169, 53, 59, 0));
+                background-image: -ms-linear-gradient(left, rgba(169, 53, 59, 0), rgba(169, 53, 59, 0.80), rgba(169, 53, 59, 0));
+                background-image: -o-linear-gradient(left, rgba(169, 53, 59, 0), rgba(169, 53, 59, 0.80), rgba(169, 53, 59, 0));
+                margin: auto;
+            }
+            hr.logo:after {
+                font-family: "anurati";
+                content: 'ALGOPRAXIS';
+                display: inline-block;
+                position: relative;
+                top: -1.4rem;
+                padding: 0 1rem;
+                background: #FFFFFF;
+                color: #A9353B;
+                font-size: 2rem;
+                letter-spacing: 1rem;
+            }
+            #wrapper {
+                padding-left: 0;
+                -webkit-transition: all 0.5s ease;
+                -moz-transition: all 0.5s ease;
+                -o-transition: all 0.5s ease;
+                transition: all 0.5s ease;
+            }
+            #wrapper.toggled {
+                padding-left: 220px;
+            }
+            #wrapper.toggled #sidebar-wrapper {
+                width: 220px;
+            }
+            #page-content-wrapper {
+                width: 100%;
+            }
+            #wrapper.toggled #page-content-wrapper {
+                position: absolute;
+                margin-right: -220px;
+            }
+            .overlay {
+                position: fixed;
+                display: none;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0,0,0,.4);
+                z-index: 11;
+            }
+            a, a:hover, a:active, a:visited {
+                color: #A9353B;
+                text-decoration:none;
+            }
+            @media only screen
+              and (min-width: 320px)
+              and (max-width: 568px) {
+                html {
+                    font-size: 16px;
+                }
+                hr.logo:after {
+                    top: -1.1rem;
+                    font-size: 1.5rem;
+                }
+                .poweredby ul li img {
+                    height: 14px;
+                }
+            }
+            @media only screen
+              and (min-width: 569px)
+              and (max-width: 1024px)  {
+                html {
+                    font-size: 18px;
+                }
+            }
+        </style>
     </head>
-
-    <body class="{% block body_class %}{% endblock %}">
-        <header>
-        {% block heading %}{% include 'includes/_navibar.html' %}{% endblock %}
-        </header>
-        
-        {% block content %}{% endblock %}
-        {# Global javascript #}
+    <body>
+        <div id="wrapper">
+            <div class="overlay"></div>
+            {% include "includes/_sidebar.html" %}
+            <div id="page-content-wrapper">
+                {% include "includes/_sidebar_button.html" %}
+                <header>
+                    {% block header %}{% endblock %}
+                </header>
+                {% block content %}{% endblock %}
+                <footer>
+                    {% block footer %}{% endblock %}
+                </footer>
+            </div>
+        </div>
         <script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
-        <script async type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
         <script async type="text/javascript" src="{% static 'js/project.js' %}"></script>
+        <script>
+            function sidebar_func() {
+                var trigger = $('.hamburger'),
+                  overlay = $('.overlay'),
+                  isClosed = false;
 
-        {% block extra_js %}
-            {# Override this in templates to add extra javascript #}
-        {% endblock %}
+                trigger.click(function () {
+                  hamburger_cross();
+                });
+
+                function hamburger_cross() {
+
+                  if (isClosed == true) {
+                    overlay.hide();
+                    trigger.removeClass('is-open');
+                    trigger.addClass('is-closed');
+                    isClosed = false;
+                  } else {
+                    overlay.show();
+                    trigger.removeClass('is-closed');
+                    trigger.addClass('is-open');
+                    isClosed = true;
+                  }
+                }
+
+                $('[data-toggle="offcanvas"]').click(function () {
+                    $('#wrapper').toggleClass('toggled');
+                });
+            }
+            $( function() {
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip();
+
+                    sidebar_func();
+
+                    {% block doc_ready %}{% endblock %}
+                });
+            } );
+
+        </script>
     </body>
 </html>
