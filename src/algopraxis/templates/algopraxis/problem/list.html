@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load static %}
+{% block header %}
+    <style>
+        hr.custom {
+            margin: 5rem 0;
+        }
+    </style>
+    <hr class="custom logo" />
+{% endblock header %}
+{% block content %}
+<style type="text/css">
+    .list-container {
+        position: relative;
+        display: block;
+        width: 60%;
+        margin: 3rem auto;
+    }
+    .list-container table {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border-bottom: 2px solid #A9353B;
+    }
+    .list-container table thead tr th {
+        font-weight: bold;
+        padding: 0.25rem 0.1rem;
+        border-bottom: 2px solid #A9353B;
+    }
+    .list-container table thead tr th:first-child {
+        width: 1.5rem;
+    }
+    .list-container table thead tr th:last-child {
+        width: 5rem;
+    }
+    .list-container table tbody tr:nth-of-type(even) {
+        background-color: rgba(169,53,59,0.15)
+    }
+    .list-container table tbody tr td {
+        padding: 0.2rem 0.1rem;
+    }
+    .list-container table tbody tr td a.problem-url:hover {
+        opacity: 0.8;
+    }
+    span.difficulty {
+        color: #3D3D3D;
+    }
+    .pagination-box {
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
+    .pagination-wrap {
+        margin: auto;
+        text-align:center;
+    }
+    .pagination>li {
+        display: inline-block;
+    }
+    .pagination>li>a,
+    .pagination>li>span {
+        width: 1.8rem;
+        height: 1.8rem;
+        line-height: 1.8rem;
+        border-radius: 50% !important;
+        border-color: rgba(169, 53, 59, 0.1);
+        color: #A9353B;
+        padding: 0;
+        margin: 0;
+    }
+    .pagination>li>a:hover,
+    .pagination>li>span:hover {
+        color: #A9353B;
+        border-color: rgba(169, 53, 59, 0.1);
+        background-color: rgba(169, 53, 59, 0.1);
+    }
+    .pagination>li.disabled>a,
+    .pagination>li.disabled>span,
+     .pagination>li.disabled>a:hover,
+    .pagination>li.disabled>span:hover {
+        background-color: #ECECEC;
+    }
+    .pagination>li:first-child>a,
+    .pagination>li:first-child>span {
+        margin-right: 3rem;
+    }
+    .pagination>li:last-child>a,
+    .pagination>li:last-child>span {
+        margin-left: 3rem;
+    }
+    .pagination>li.active>span {
+        background-color: #A9353B;
+        border-color: #A9353B;
+    }
+    .pagination>li.active>span:hover {
+        background-color: #A9353B;
+        border-color: #A9353B;
+    }
+    @media only screen
+      and (min-width: 320px)
+      and (max-width: 568px) {
+        article.list-container {
+            width: 95%;
+        }
+    }
+    @media only screen
+      and (min-width: 569px)
+      and (max-width: 1024px)  {
+        article.list-container {
+            width: 75%;
+        }
+    }
+</style>
+<section class="main-content">
+    <article class="list-container">
+        <table class="list-table">
+            <thead class="list-table-head">
+                <tr>
+                    <th></th>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Difficulty</th>
+                </tr>
+            </thead>
+            <tbody class="list-table-body">
+                {% for problem in problems %}
+                    <tr>
+                        <td>
+                            {% if problem.has_solution %}
+                                <i class="fa fa-check" aria-hidden="true"></i>
+                            {% endif %}
+                        </td>
+                        <td>{{ problem.prob_no }}</td>
+                        <td><a class="problem-url" href="{{ problem.get_abs_url }}">{{ problem.title }}</a></td>
+                        <td><span class="label difficulty">{{ problem.get_difficulty }}</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination-box">
+            <div class="pagination-wrap">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li><a href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
+                    {% else %}
+                    <li class="disabled"><span><i class="fa fa-angle-double-left" aria-hidden="true"></i></span></li>
+                    {% endif %}
+
+                    {% for i in customized_range %}
+                        {% if page_obj.number == i %}
+                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                        {% else %}
+                            <li><a href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li><a href="?page={{ page_obj.next_page_number }}"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
+                    {% else %}
+                    <li class="disabled"><span><i class="fa fa-angle-double-right" aria-hidden="true"></i></span></li>
+                    {% endif %}
+
+                </ul>
+            </div>
+        </div>
+    </article>
+</section>
+<link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
+{% endblock %}
