@@ -174,13 +174,14 @@
                     $('#wrapper').toggleClass('toggled');
                 });
             }
+            {% block extra_js %}{% endblock %}
             $( function() {
                 $(document).ready(function(){
                     $('[data-toggle="tooltip"]').tooltip();
 
                     sidebar_func();
 
-                    {% block doc_ready %}{% endblock %}
+                    {% block js_document_ready %}{% endblock %}
                 });
             } );
 
