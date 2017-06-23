@@ -15,21 +15,23 @@ from coderunner.src.runner import Runner
 
 class SinginView(View):
     def get(self, request):
-        context = {}
+        next = request.GET.get('next', '/')
+        context = {'next': next}
         template = 'algopraxis/signin.html'
         return render(request, template, context)
 
     def post(self, request):
         user = request.user
+        next = request.GET.get('next', '/')
         if not user.is_authenticated:
             username = request.POST.get('username')
             password = request.POST.get('password')
             user = authenticate(username=username, password=password)
         if user:
             login(request, user)
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect(next)
         else:
-            context = {}
+            context = {'next': next}
             template = 'algopraxis/signin.html'
             context['emsg'] = "You must have an account to use ALGOPRAXIS!!"
             return render(request, template, context)

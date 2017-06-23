@@ -107,7 +107,7 @@
         <li><a href="/create/">CREATE</a></li>
         <li><a href="/signout/">SIGN OUT</a></li>
       {% else %}
-        <li><a href="/signin/">SIGN IN</a></li>
+        <li><a href="/signin/?next={{request.path}}">SIGN IN</a></li>
       {% endif %}
       <li><a href="/about/">ABOUT</a></li>
     </ul>
