@@ -95,10 +95,8 @@
 {% endif %}
 {% endblock %}
 
-{% block footer %}{% endblock %}
-
 {% if emsg %}
-{% block doc_ready %}
+{% block js_document_ready %}
     $('div#error-modal').modal('show');
     setTimeout(function() {
         $('div#error-modal').modal('hide');
