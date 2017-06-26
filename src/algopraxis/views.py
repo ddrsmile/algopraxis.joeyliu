@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 import json
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views import View
+from django.views import View, generic
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -12,21 +13,71 @@ from .forms import ProblemForm, SolutionForm, TestCaseForm
 
 from coderunner.src.runner import Runner
 
-class ProblemListView(View):
-    def get(self, request, *args, **kwargs):
-        problems = Problem.objects.all()
-        paginator = Paginator(problems, 20)
-        page = request.GET.get('page')
-        try:
-            problems = paginator.page(page)
-        except PageNotAnInteger:
-            problems = paginator.page(1)
-        except EmptyPage:
-            problems = paginator.page(paginator.num_pages)
-
-        context = {'problems': problems}
-        template = 'algopraxis/problem/list.html'
+class SinginView(View):
+    def get(self, request):
+        next = request.GET.get('next', '/')
+        context = {'next': next}
+        template = 'algopraxis/signin.html'
         return render(request, template, context)
+
+    def post(self, request):
+        user = request.user
+        next = request.GET.get('next', '/')
+        if not user.is_authenticated:
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(username=username, password=password)
+        if user:
+            login(request, user)
+            return HttpResponseRedirect(next)
+        else:
+            context = {'next': next}
+            template = 'algopraxis/signin.html'
+            context['emsg'] = "You must have an account to use ALGOPRAXIS!!"
+            return render(request, template, context)
+
+class SingoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return HttpResponseRedirect('/')
+
+class HomeView(View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        template = 'algopraxis/home.html'
+        return render(request, template, context)
+
+class AboutView(View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        template = 'algopraxis/about.html'
+        return render(request, template, context)
+
+class ProblemListView(generic.ListView):
+    model = Problem
+    context_object_name = "problems"
+    template_name = 'algopraxis/problem/list.html'
+    paginate_by = 25
+
+    def get_context_data(self, **kwargs):
+        context = super(ProblemListView, self).get_context_data(**kwargs)
+
+        page = context.get('page_obj')
+        paginator = context.get('paginator')
+        customized_range = self.designate_pages_range(page, paginator)
+        context.update(customized_range)
+
+        return context
+
+    def designate_pages_range(self, page, paginator):
+        start_index = max(1, page.number - 2)
+        end_index = min(start_index + 4, paginator.num_pages)
+
+        start_index = min(start_index, max(end_index - 4, 1))
+
+        customized_range = [i for i in range(start_index, end_index + 1)]
+        return {'customized_range':customized_range}
+
 
 class ProblemTaggedListView(View):
     def get(self, request, tag=None, *args, **kwargs):
@@ -157,7 +208,6 @@ class RunView(View):
         main_content = problem.main_file_code
         sol_content = request.POST.get('code')
         input_data = request.POST.get('testcases')
-
         runner = Runner()
         runner.set_files(main_content, sol_content, input_data)
         outputs = runner.run()

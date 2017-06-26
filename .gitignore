@@ -6,7 +6,6 @@ __pycache__/
 *.sock
 *SECRET_KEY*
 db.sqlite3
-dev.py
 src/static/*
 src/media/*
 .vscode/

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+    <style type="text/css">
+        hr.custom {
+            margin: 5rem auto;
+        }
+    </style>
+    <hr class="custom logo" />
+{% endblock header %}
+{% block content %}
+<style type="text/css">
+    .about-box {
+        margin: auto;
+        text-align: center
+    }
+    .about-box h2 {
+        margin: 0.5rem 0 !important;
+    }
+    .about-box .text-content {
+        font-size: 1.2rem;
+    }
+    span.logo {
+        font-family:anurati;
+        font-size: 0.8rem;
+        color: #A9353B;
+        letter-spacing: 0.4rem;
+    }
+    .social-media-box {
+        width: 100%;
+        margin: 3rem 0;
+        display: -webkit-flex;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .social-media-box ul {
+        list-style: none;
+        padding: 0;
+    }
+    .social-media-box ul li {
+        display: inline-flex;
+        align-items:center;
+        padding: 0;
+        margin: 0 20px;
+    }
+    @media only screen
+    and (max-width: 1024px) {
+        .main-content-box {
+            padding: 0 15px;
+        }
+    }
+</style>
+<section class="main-content-box">
+    <article class="about-box">
+        <p>
+            The idea of this website came from LeetCode. <br />
+            I just thought that it must be cool that I could build my own online judgement website. <br />
+            then <span class="logo">ALGOPRAXIS</span> was born.<br/><br/>
+
+            The website was built with <strong>Django</strong> as the backend.<br />
+            <strong>jQuery</strong> and <strong>Bootstrap</strong> were used to build the front end.<br />
+            So far, this website only support <strong>Python 3</strong>.<br /><br />
+
+            As the future plan<br />
+            <strong>ReactJS</strong> will be used as the front end framework.<br />
+            Implement <strong>Celery</strong> and <strong>RabbitMQ</strong> to run the code asynchronously.<br />
+            And I plan to make it support <strong>JAVA</strong> and <strong>C++</strong>.<br /><br />
+
+            Finally, Thank you very much for visiting <span class="logo">ALGOPRAXIS</span>.<br />
+        </p>
+    </article>
+    <div class="social-media-box">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
+        <ul class="clearfix">
+            <li><a href="https://github.com/ddrsmile/algopraxis.joeyliu"><i class="fa fa-github fa-5x" aria-hidden="true"></i></a></li>
+        </ul>
+    </div>
+</section>
+{% endblock content %}

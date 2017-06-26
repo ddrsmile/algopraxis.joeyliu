@@ -94,6 +94,15 @@ class Problem(AbstractBase):
     def get_tags_list(self):
         return self.tags.values_list('name', flat=True)
 
+    @property
+    def get_difficulty(self):
+        return DIFFICULTY[self.difficulty - 1][1]
+
+    @property
+    def has_solution(self):
+        solutions = Solution.objects.filter(problem=self)
+        return solutions.count() > 0
+
     class Meta:
         ordering = ['prob_no']
 

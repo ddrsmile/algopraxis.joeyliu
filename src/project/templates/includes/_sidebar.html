@@ -1,0 +1,114 @@
+<style type="text/css">
+    #sidebar-wrapper {
+        z-index: 1000;
+        left: 220px;
+        width: 0;
+        height: 100%;
+        margin-left: -220px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: #1a1a1a;
+        -webkit-transition: all 0.5s ease;
+        -moz-transition: all 0.5s ease;
+        -o-transition: all 0.5s ease;
+        transition: all 0.5s ease;
+    }
+    #sidebar-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+    .sidebar-nav {
+        position: absolute;
+        top: 0;
+        width: 220px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .sidebar-nav li {
+        position: relative;
+        line-height: 20px;
+        display: inline-block;
+        width: 100%;
+    }
+    .sidebar-nav li:not(:first-child):before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        height: 100%;
+        width: 3px;
+        background-color: #A9353B;
+        -webkit-transition: width .2s ease-in;
+        -moz-transition:  width .2s ease-in;
+        -ms-transition:  width .2s ease-in;
+        transition: width .2s ease-in;
+    }
+    .sidebar-nav li:first-child a {
+        display: block;
+        font-family: "anurati";
+        letter-spacing: 0.2rem;
+        padding: 10px 0;
+        text-align: center;
+        color: #FFFFFF;
+        background-color: transparent;
+        -webkit-transition: color .5s ease-in;
+        -moz-transition:  color .5s ease-in;
+        -ms-transition:  color .5s ease-in;
+        transition: color .5s ease-in;
+    }
+    .sidebar-nav li:not(:first-child):hover:before,
+    .sidebar-nav li.open:not(:first-child):hover:before {
+        width: 100%;
+        -webkit-transition: width .2s ease-in;
+        -moz-transition:  width .2s ease-in;
+        -ms-transition:  width .2s ease-in;
+        transition: width .2s ease-in;
+    }
+    .sidebar-nav li:not(:first-child) a {
+        display: block;
+        color: #ddd;
+        text-decoration: none;
+        padding: 10px 15px 10px 30px;
+    }
+    .sidebar-nav li:first-child a:hover,
+    .sidebar-nav li:first-child a:active,
+    .sidebar-nav li:first-child a:focus,
+    .sidebar-nav li.open:first-child a:hover,
+    .sidebar-nav li.open:first-child a:active,
+    .sidebar-nav li.open:first-child a:focus{
+        color: #A9353B;
+        -webkit-transition: color .5s ease-in;
+        -moz-transition:  color .5s ease-in;
+        -ms-transition:  color .5s ease-in;
+        transition: color .5s ease-in;
+    }
+    .sidebar-nav li:not(:first-child) a:hover,
+    .sidebar-nav li:not(:first-child) a:active,
+    .sidebar-nav li:not(:first-child) a:focus,
+    .sidebar-nav li.open:not(:first-child) a:hover,
+    .sidebar-nav li.open:not(:first-child) a:active,
+    .sidebar-nav li.open:not(:first-child) a:focus{
+        color: #FFFFFF;
+        text-decoration: none;
+        background-color: transparent;
+    }
+    .sidebar-nav > .sidebar-brand {
+        height: 65px;
+        font-size: 20px;
+        line-height: 44px;
+    }
+</style>
+<nav class="navbar navbar-inverse navbar-fixed-top" id="sidebar-wrapper" role="navigation">
+    <ul class="nav sidebar-nav">
+      <li class="sidebar-brand"><a href="/">ALGOPRAXIS</a></li>
+      <li><a href="/problems/">PROBLEMS</a></li>
+      {% if request.user.is_authenticated %}
+        <li><a href="/create/">CREATE</a></li>
+        <li><a href="/signout/">SIGN OUT</a></li>
+      {% else %}
+        <li><a href="/signin/?next={{request.path}}">SIGN IN</a></li>
+      {% endif %}
+      <li><a href="/about/">ABOUT</a></li>
+    </ul>
+</nav>
