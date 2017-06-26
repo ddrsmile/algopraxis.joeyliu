@@ -208,7 +208,6 @@ class RunView(View):
         main_content = problem.main_file_code
         sol_content = request.POST.get('code')
         input_data = request.POST.get('testcases')
-
         runner = Runner()
         runner.set_files(main_content, sol_content, input_data)
         outputs = runner.run()

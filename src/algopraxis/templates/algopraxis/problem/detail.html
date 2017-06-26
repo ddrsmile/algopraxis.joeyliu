@@ -1,46 +1,81 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 {% block extrahead %}
     {{ solution_form.media }}
 {% endblock %}
-<h1>{{ problem.title }}</h1>
 
-<div>
-    {{ problem.get_markdown_prob_content }}
-</div>
 <style type="text/css">
+    section {
+        width: 80%;
+        margin: 2rem auto;
+    }
+    .control-ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    .control-component {
+        display: inline-block;
+    }
+    .problem {
+        margin-top: 1rem
+    }
+    #id_lang_mode {
+        width: 10rem;
+    }
     .editor {
         border: 1px solid #e0e0e0;
         border-radius: 4px;
     }
 </style>
-<form id="solution-form" class="form-horizontal" role="form" method="POST" action="" novalidate>
-    {% for field in solution_form %}
-        <div class="form-group">
-            <div>{{ field }}</div>
-        </div>
-    {% endfor %}
+
+<section class="problem">
+<h1>{{ problem.title }}</h1>
+
+<div>
+    {{ problem.get_markdown_prob_content }}
+</div>
+</section>
+<section class="coderunner">
+<form id="solution-form" role="form" method="POST" action="" novalidate>
+    <div class="control-box hidden">
+        <ul class="control-ul">
+            <li class="control-component">
+                <input type="hidden" name="lang_mode" id="id_lang_mode" value="python3"/>
+            </li>
+        </ul>
+    </div>
+    <div class="form-group">
+        {{ solution_form.code }}
+    </div>
 </form>
-<button class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()">Save Solution</button>
-<hr/>
-<form id="testcases-form" class="form-horizontal" role="form" method="POST" action="" novalidate>
-    {% for field in testcase_form %}
-        <div class="form-group">
-            <div>{{ field }}</div>
+<div class="control-panel">
+    <div class="row">
+        <div class="col-md-8 col-sm-7">
+            {{ testcase_form.content }}
         </div>
-    {% endfor %}
-</form>
-<button class="btn btn-default" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_testcases()">Save Test Cases</button>
-
-<button class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="run()">Run</button>
-
-<div class="result"></div>
-
+        <div class="col-md-4 col-sm-5">
+            <div class="control-box pull-right">
+                <ul class="control-ul">
+                    <li class="control-component">
+                        <button id="run-code" class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="run()"><i class="fa fa-play-circle-o" aria-hidden="true"></i> RUN</button>
+                    </li>
+                    <li class="control-component">
+                        <button id="save-solution" class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()"><i class="fa fa-save" aria-hidden="true"></i> SAVE</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<section class="output">
+    <div class="result"></div>
+</section>
+<link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
 {% endblock %}
 
 {% block extra_js %}
-<script type="text/javascript">
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -69,7 +104,6 @@
         }
     });
     function save_solution() {
-
         $.ajax({
             type: "post",
             url: "{% url 'algopraxis:save_solution' slug=problem.slug %}",
@@ -98,24 +132,21 @@
             }
         });
     }
-    var kkk;
+
     function run() {
         var post_data = {};
         post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
         post_data["code"] = $("#solution-form").find("#id_code").text()
-        post_data["testcases"] = $("#testcases-form").find("#id_content").text();
+        post_data["testcases"] = $("#id_content").val();
 
         $.ajax({
             type: "post",
             url: "{% url 'algopraxis:run' slug=problem.slug %}",
             data: post_data,
             success: function(result) {
-                var k = $('.result');
-                kkk = result;
+                var output_panel = $('.result');
                 $.each(result, function() {
-
-                    k.append('<p>' + this + '</p>');
-
+                    output_panel.append('<p>' + this + '</p>');
                 });
             },
             error: function(xhr, emsgs, err) {
@@ -124,5 +155,4 @@
             }
         });
     };
-</script>
 {% endblock %}
