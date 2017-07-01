@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from django.conf.urls import url
+from django.conf.urls import url, include
 from . import views
 
 urlpatterns = [
@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^(?P<slug>[\w-]+)/save_solution/$', views.SolutionSaveView.as_view(), name='save_solution'),
     url(r'^(?P<slug>[\w-]+)/save_testcase/$', views.TestCaseSaveView.as_view(), name='save_testcase'),
     url(r'^(?P<slug>[\w-]+)/run/$', views.RunView.as_view(), name='run'),
+    url(r'^api/problems/', include('algopraxis.api.urls', namespace='api')),
 ]
