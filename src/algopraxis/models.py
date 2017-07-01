@@ -68,7 +68,6 @@ class ProblemTag(TaggedItemBase):
 
 class Problem(AbstractBase):
     # basic information
-    prob_no = models.IntegerField(unique=True)
     title = models.CharField(max_length=255, blank=False, unique=True)
     slug = models.SlugField(unique=True)
     difficulty = models.IntegerField(choices=DIFFICULTY, default=1)
@@ -81,7 +80,7 @@ class Problem(AbstractBase):
     solution_start_code = models.TextField()
 
     def __str__(self):
-        return u"No: {prob_no} - Title: {title}".format(prob_no=self.prob_no, title=self.title)
+        return u"No: {id} - Title: {title}".format(id=self.id, title=self.title)
 
     def get_abs_url(self):
         return reverse('algopraxis:detail', kwargs={'slug': self.slug})
@@ -104,7 +103,7 @@ class Problem(AbstractBase):
         return solutions.count() > 0
 
     class Meta:
-        ordering = ['prob_no']
+        ordering = ['id']
 
 def create_slug(instance, new_slug=None):
     slug = new_slug or slugify(instance.title)
@@ -133,7 +132,7 @@ class Solution(AbstractBase):
         ordering = ['-created_at', '-updated_at']
 
     def __str__(self):
-        return "Problem {prob_no}'s solution".format(prob_no=self.problem.prob_no)
+        return "Problem {id}'s solution".format(id=self.problem.id)
 
 class TestCase(AbstractBase):
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='testcases')
@@ -142,7 +141,7 @@ class TestCase(AbstractBase):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "Problem {prob_no}'s test case".format(prob_no=self.problem.prob_no)
+        return "Problem {id}'s test case".format(id=self.problem.prob_no)
 
     class Meta:
         ordering = ['-created_at', '-updated_at']

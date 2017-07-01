@@ -9,7 +9,6 @@ class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
         fields = [
-            'prob_no',
             'title',
             'difficulty',
             'content',
