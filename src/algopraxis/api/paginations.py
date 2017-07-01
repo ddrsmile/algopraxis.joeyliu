@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from rest_framework.response import Response
 from rest_framework.utils.urls import replace_query_param
 from rest_framework.pagination import (
@@ -12,16 +14,29 @@ class ProblemLimitOffsetPagination(LimitOffsetPagination):
 class ProblemPageNumberPagination(PageNumberPagination):
     page_size = 1
 
+    def has_solution(self, problem):
+        user_id = self.request.user.id
+        for solution in problem['solutions']:
+            if solution['user'] == user_id:
+                return True
+        return False
+
+    def customize_data(self, data):
+        for i, problem in enumerate(data):
+            content = [(k, v) for k, v in problem.items()]
+            content += [('has_solution', self.has_solution(problem))]
+            problem = OrderedDict(content)
+            data[i] = problem
+        return data
+
     def get_paginated_response(self, data):
         output = {
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
+            'next_page_num': self.page.number + 1 if self.page.number < self.page.paginator.num_pages else None,
+            'previous_page_num': self.page.number - 1 if self.page.number > 1 else None,
             'current_page': self.page.number,
             'count': self.page.paginator.count,
             'page_range': self.get_page_range(self.page),
-            'results': data
+            'results': self.customize_data(data)
         }
 
         return Response(output)
