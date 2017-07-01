@@ -101,8 +101,18 @@ class TagSerializer(serializers.Serializer):
         return (to_be_tagged, validated_data)
 
 
+class SolutionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Solution
+        fields = [
+            'user',
+            'lang_mode',
+            'code',
+        ]
+
 class ProblemListSerializer(TagSerializer, serializers.ModelSerializer):
     tags = TagSerializerField()
+    solutions = SolutionSerializer(many=True)
     class Meta:
         model = Problem
         fields =[
@@ -141,12 +151,4 @@ class ProblemCreateUpdateSerializer(TagSerializer, serializers.ModelSerializer):
             'main_file_code',
             'solution_start_code',
             'tags',
-        ]
-
-class SolutionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Solution
-        fields = [
-            'lang_mode',
-            'code',
         ]
