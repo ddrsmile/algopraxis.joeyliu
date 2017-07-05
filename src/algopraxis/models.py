@@ -78,6 +78,8 @@ class Problem(AbstractBase):
     # solution
     main_file_code = models.TextField()
     solution_start_code = models.TextField()
+    # testcase
+    default_testcase = models.TextField()
 
     def __str__(self):
         return u"No: {id} - Title: {title}".format(id=self.id, title=self.title)
@@ -85,7 +87,7 @@ class Problem(AbstractBase):
     def get_abs_url(self):
         return reverse('algopraxis:detail', kwargs={'slug': self.slug})
 
-    def get_markdown_prob_content(self):
+    def get_markdown_content(self):
         extensions = ["markdown.extensions.extra", "codehilite"]
         marked_content = markdown(self.content, extensions=extensions)
         return mark_safe(marked_content)
@@ -133,15 +135,3 @@ class Solution(AbstractBase):
 
     def __str__(self):
         return "Problem {id}'s solution".format(id=self.problem.id)
-
-class TestCase(AbstractBase):
-    problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='testcases')
-    content = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return "Problem {id}'s test case".format(id=self.problem.prob_no)
-
-    class Meta:
-        ordering = ['-created_at', '-updated_at']

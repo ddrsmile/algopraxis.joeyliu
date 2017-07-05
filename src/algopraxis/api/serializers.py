@@ -106,6 +106,7 @@ class SolutionSerializer(serializers.ModelSerializer):
         model = Solution
         fields = [
             'user',
+            'id',
             'lang_mode',
             'code',
         ]
@@ -127,6 +128,7 @@ class ProblemListSerializer(TagSerializer, serializers.ModelSerializer):
 
 class ProblemDetailSerializer(TagSerializer, serializers.ModelSerializer):
     tags = TagSerializerField()
+    solutions = SolutionSerializer(many=True)
     class Meta:
         model = Problem
         fields =[
@@ -134,10 +136,11 @@ class ProblemDetailSerializer(TagSerializer, serializers.ModelSerializer):
             'title',
             'slug',
             'difficulty',
-            'content',
-            'main_file_code',
+            'get_markdown_content',
             'solution_start_code',
             'tags',
+            'solutions',
+            'default_testcase',
         ]
 
 class ProblemCreateUpdateSerializer(TagSerializer, serializers.ModelSerializer):

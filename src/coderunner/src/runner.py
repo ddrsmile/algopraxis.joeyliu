@@ -54,10 +54,16 @@ class Runner:
 
 
     def run(self):
-        main = importlib.import_module('coderunner.workplace.{work_dir}.main'.format(work_dir=self.work_dir))
-        m = main.Main(os.path.join(WORKPLACE, self.work_dir, 'input.txt'))
-        output = m.main()
-        self.unload()
-        shutil.rmtree(os.path.join(WORKPLACE, self.work_dir))
-        return output
+        try:
+            main = importlib.import_module('coderunner.workplace.{work_dir}.main'.format(work_dir=self.work_dir))
+            m = main.Main(os.path.join(WORKPLACE, self.work_dir, 'input.txt'))
+            output = m.main()
+            return output
+        except Exception as e:
+            message = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            return [message.format(type(e).__name__, str(e))]
+        finally:
+            self.unload()
+            shutil.rmtree(os.path.join(WORKPLACE, self.work_dir))
+
 

@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-{% block extrahead %}
-    {{ solution_form.media }}
-{% endblock %}
 
 <style type="text/css">
     section {
         width: 80%;
-        margin: 2rem auto;
+        margin: auto;
+    }
+    pre {
+        margin: auto;
+    }
+    hr.custom {
+        margin: 1rem;
     }
     .control-ul {
         list-style-type: none;
@@ -27,52 +30,55 @@
         border: 1px solid #e0e0e0;
         border-radius: 4px;
     }
+    .coderunner .row {
+        margin-bottom: 15px;
+    }
 </style>
 
 <section class="problem">
-<h1>{{ problem.title }}</h1>
-
-<div>
-    {{ problem.get_markdown_prob_content }}
-</div>
 </section>
+<hr class="custom">
 <section class="coderunner">
-<form id="solution-form" role="form" method="POST" action="" novalidate>
-    <div class="control-box hidden">
-        <ul class="control-ul">
-            <li class="control-component">
-                <input type="hidden" name="lang_mode" id="id_lang_mode" value="python3"/>
-            </li>
-        </ul>
-    </div>
-    <div class="form-group">
-        {{ solution_form.code }}
-    </div>
-</form>
-<div class="control-panel">
-    <div class="row">
-        <div class="col-md-8 col-sm-7">
-            {{ testcase_form.content }}
+    <form id="solution-form" role="form" novalidate>
+        <div class="control-panel hidden">
+            <ul class="control_ul">
+                <li><select id="id_lang_mode" name="lang_mode">
+                    <option value="python3" >Python 3</option>
+                    <option value="java" >Java</option>
+                    <option value="c++" >C++</option>
+                </select></li>
+            </ul>
         </div>
-        <div class="col-md-4 col-sm-5">
-            <div class="control-box pull-right">
-                <ul class="control-ul">
-                    <li class="control-component">
-                        <button id="run-code" class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="run()"><i class="fa fa-play-circle-o" aria-hidden="true"></i> RUN</button>
-                    </li>
-                    <li class="control-component">
-                        <button id="save-solution" class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()"><i class="fa fa-save" aria-hidden="true"></i> SAVE</button>
-                    </li>
-                </ul>
+        <div id="code_area" class="form-group">
+            <textarea id="id_code" name="code" style="display:none"></textarea>
+            <div id="code_editor"></div>
+        </div>
+    </form>
+    <div class="control-panel">
+        <div class="row">
+            <div class="col-md-8 col-sm-7">
+                <textarea name="content" cols="40" rows="5" class="form-control" id="id_testcases"></textarea>
+            </div>
+            <div class="col-md-4 col-sm-5">
+                <div class="control-box pull-right">
+                    <ul class="control-ul">
+                        <li class="control-component">
+                            <button id="run-code" class="btn btn-default" type="button" onclick="run()"><i class="fa fa-play-circle-o" aria-hidden="true"></i> RUN</button>
+                        </li>
+                        <li class="control-component">
+                            <button id="save-solution" class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()"><i class="fa fa-save" aria-hidden="true"></i> SAVE</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <div class="result-panel">
+    </div>
 </section>
-<section class="output">
-    <div class="result"></div>
-</section>
+<hr class="custom">
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
+<script type="text/javascript" src="{% static 'parts/ace/ace.js' %}"></script>
 {% endblock %}
 
 {% block extra_js %}
@@ -103,10 +109,13 @@
             }
         }
     });
+
     function save_solution() {
+        var solution_id = $("#id_code").attr("solution_id");
+        var url = "/api/solution/" + solution_id == "_"? "/create/":(solution_id + "/update/");
         $.ajax({
-            type: "post",
-            url: "{% url 'algopraxis:save_solution' slug=problem.slug %}",
+            type: "put",
+            url: "/api/solution/" + solution_id + "/update/",
             data: $('#solution-form').serialize(),
             success: function(result) {
                 alert('solution saved');
@@ -118,36 +127,21 @@
         });
     };
 
-    function save_testcases() {
-        $.ajax({
-            type: "post",
-            url: "{% url 'algopraxis:save_testcase' slug=problem.slug %}",
-            data: $('#testcases-form').serialize(),
-            success: function(result) {
-                alert('testcases saved');
-            },
-            error: function(xhr, emsgs, err) {
-                alert(emsgs);
-                alert(xhr.status + ": " + xhr.responseText);
-            }
-        });
-    }
-
     function run() {
+        $("section.coderunner .result-panel").empty();
+        var slug = $(location).attr("pathname");
         var post_data = {};
         post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
-        post_data["code"] = $("#solution-form").find("#id_code").text()
-        post_data["testcases"] = $("#id_content").val();
-
+        post_data["code"] = $("#solution-form").find("#id_code").val()
+        post_data["testcases"] = $("#id_testcases").val();
+        // url: "{% url 'algopraxis:run' slug=problem.slug %}",
         $.ajax({
-            type: "post",
-            url: "{% url 'algopraxis:run' slug=problem.slug %}",
+            type: "get",
+            url: "/api/run" + slug,
             data: post_data,
-            success: function(result) {
-                var output_panel = $('.result');
-                $.each(result, function() {
-                    output_panel.append('<p>' + this + '</p>');
-                });
+            success: function(data) {
+                render_results(data);
+                $('html, body').scrollTop( $(document).height() );
             },
             error: function(xhr, emsgs, err) {
                 alert(emsgs);
@@ -155,4 +149,83 @@
             }
         });
     };
+    function apply_ace_editor() {
+        var code_content = $("#id_code").val();
+        // create ace editor
+        var _editor = ace.edit("code_editor");
+        _editor.$blockScrolling = Infinity;
+        _editor.container.style.height = "300px";
+        _editor.container.style.weight = "100%";
+        _editor.resize();
+        _editor.setTheme("ace/theme/chrome");
+        _editor.setShowPrintMargin(false);
+        _editor.setFontSize(13);
+        _editor.setStyle("editor");
+
+        // setup editor session
+        _editor.getSession().setUseWorker(false);
+        _editor.getSession().setUseSoftTabs(true);
+        _editor.getSession().setValue(code_content);
+        _editor.getSession().setMode("ace/mode/python");
+
+        // added event listener to update code textarea
+        // pass session into the function to bind the corresponding textarea.
+        _editor.getSession().on("change", function(e, _session) {{
+            var code = $("#id_code");
+            code.val(_session.getValue());
+        }});
+    }
+
+    function render_problem(data) {
+        var section = $("section.problem");
+        $("<h1></h1>").text(data["title"]).appendTo(section);
+        $("<div></div>").html(data["get_markdown_content"]).appendTo(section);
+    }
+
+    function render_solution(data) {
+        $("#id_lang_mode").val(data["lang_mode"]);
+        $("#id_code").attr("solution_id", data["id"])
+                     .val(data["code"]);
+        apply_ace_editor();
+    }
+
+    function render_testcase(data) {
+        $("#id_testcases").val(data["default_testcase"]);
+    }
+
+    function render_results(data) {
+        var result_panel = $("section.coderunner .result-panel");
+        var result_box = $("<pre></pre>");
+        $.each(data, function() {
+            result_box.append(
+                $("<span></span>").text(this)
+            );
+        });
+        result_box.appendTo(result_panel);
+    }
+
+function render_page() {
+    var slug = $(location).attr("pathname");
+    $.ajax({
+        type: "get",
+        url: "/api/problems" + slug,
+        success: function(data) {
+            render_problem(data)
+            solution = data["solution"];
+            if (!solution) {
+                solution = {"id": "_", "lang_mode": "python3", "code": data["solution_start_code"]}
+            }
+            render_solution(solution);
+            render_testcase(data);
+        },
+        error: function(xhr, emsgs, err) {
+            console.log(emsgs);
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+}
+
+{% endblock %}
+{% block js_document_ready %}
+render_page();
 {% endblock %}

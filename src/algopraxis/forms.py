@@ -2,7 +2,7 @@
 # Django modules
 from django import forms
 # App modules
-from .models import Problem, Solution, TestCase
+from .models import Problem, Solution
 from parts.widgets import CodeTextWidget
 
 class ProblemForm(forms.ModelForm):
@@ -14,6 +14,7 @@ class ProblemForm(forms.ModelForm):
             'content',
             'main_file_code',
             'solution_start_code',
+            'default_testcase',
             'tags',
         ]
 
@@ -36,15 +37,3 @@ class SolutionForm(forms.ModelForm):
         super(SolutionForm, self).__init__(*args, **kwargs)
         self.fields['lang_mode'].widget.attrs.update({'onchange': 'update_code_mode(this)',
                                                       'class': 'form-control'})
-
-class TestCaseForm(forms.ModelForm):
-    class Meta:
-        model = TestCase
-        fields = [
-            'content',
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super(TestCaseForm, self).__init__(*args, **kwargs)
-        self.fields['content'].widget.attrs.update({'class': 'form-control',
-                                                    'rows': 5})
