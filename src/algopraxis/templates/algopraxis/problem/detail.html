@@ -133,10 +133,19 @@
 
     function save_solution() {
         var solution_id = $("#id_code").attr("solution_id");
-        var url = "/api/solution/" + solution_id == "_"? "/create/":(solution_id + "/update/");
+        var url;
+        var method_type;
+        if (solution_id == "_") {
+            var slug = $(location).attr("pathname");
+            url = "/api/solution" + slug + "create/";
+            method_type = "post";
+        } else {
+            url = "/api/solution/" + solution_id + "/update/";
+            method_type = "put";
+        }
         $.ajax({
-            type: "put",
-            url: "/api/solution/" + solution_id + "/update/",
+            type: method_type,
+            url: url,
             data: $('#solution-form').serialize(),
             success: function(result) {
                 var modal = $("div#msg-modal");
