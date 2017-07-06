@@ -12,7 +12,7 @@ class ProblemLimitOffsetPagination(LimitOffsetPagination):
     max_limit = 100
 
 class ProblemPageNumberPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 15
 
     def has_solution(self, problem):
         user_id = self.request.user.id
