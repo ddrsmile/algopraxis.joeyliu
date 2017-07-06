@@ -33,6 +33,13 @@
     .coderunner .row {
         margin-bottom: 15px;
     }
+    .modal-header {
+        border: none;
+    }
+    .modal-title {
+        font-family: 'ubuntu', sans-serif;
+        color: #A9353B;
+    }
 </style>
 
 <section class="problem">
@@ -79,6 +86,20 @@
 <hr class="custom">
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
 <script type="text/javascript" src="{% static 'parts/ace/ace.js' %}"></script>
+<div id="msg-modal" class="modal fade">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -118,11 +139,25 @@
             url: "/api/solution/" + solution_id + "/update/",
             data: $('#solution-form').serialize(),
             success: function(result) {
-                alert('solution saved');
+                var modal = $("div#msg-modal");
+                modal.find("h4").text("Success!!!");
+                var body_content = $("<p></p>").text("Your solution has been saved successfully!!");
+                modal.find(".modal-body").empty().append(body_content);
+                modal.modal('show');
+                setTimeout(function() {
+                    modal.modal('hide');
+                }, 3000);
             },
             error: function(xhr, emsgs, err) {
-                alert(emsgs);
-                alert(xhr.status + ": " + xhr.responseText);
+                var modal = $("div#msg-modal");
+                modal.find("h4").text("Error!!!");
+                modal.find(".modal-body").empty()
+                     .append($("<p></p>").text("Your solution was not saved successfully!!"))
+                     .append($("<p></p>").text(xhr.status + ": " +err));
+                modal.modal('show');
+                setTimeout(function() {
+                    modal.modal('hide');
+                }, 3000);
             }
         });
     };
