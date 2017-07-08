@@ -1,22 +1,342 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
+<style type="text/css">
+    section {
+        width: 80%;
+        margin: auto;
+    }
+    #problem-form {
+        margin: 2rem auto;
+    }
+    pre {
+        margin: auto;
+    }
+    hr.custom {
+        margin: 1rem;
+    }
+    .control-ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    .control-component {
+        display: inline-block;
+    }
+    .problem {
+        margin-top: 1rem
+    }
+    form#create-update-form input:focus,
+    form#create-update-form select:focus,
+    form#create-update-form textarea:focus,
+    form#create-update-form div.ace_focus {
+        border-color: #A9353B;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(169, 53, 59, 0.6);
+        outline: 0 none;
+    }
+    .editor {
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+    .modal-header {
+        border: none;
+    }
+    .modal-footer {
+        border: none;
+    }
+    .modal-footer .btn {
+        width: 72px;
+    }
+    .modal-title {
+        font-family: 'ubuntu', sans-serif;
+        color: #A9353B;
+    }
+</style>
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
 </ul>
 {% endif %}
-<form class="form-horizontal" role="form" method="POST" action="{% url 'algopraxis:create' %}" novalidate>
-    {% csrf_token %}
-    {% for field in form %}
+<section class="create-update clearfix">
+    <hr class="custom">
+    <form id="create-update-form" class="form-horizontal" role="form" novalidate>
         <div class="form-group has-feedback">
-            <label class="col-sm-3 control-label" for={{ field.html_name }}>{{ field.label }}</label>
-            <div class="col-sm-9">{{ field }}</div>
-            {{ field.errors }}
+            <label class="col-sm-2 control-label" for="title">Title</label>
+            <div class="col-sm-10">
+                <input type="text" id="title" name="title" class="form-control" required>
+            </div>
         </div>
-    {% endfor %}
-<input type="submit" class="btn btn-default" value="create post"/>
-</form>
+        <div class="form-group has-feedback">
+            <label class="col-sm-2 control-label" for="difficulty">Difficulty</label>
+            <div class="col-sm-10">
+                <select id="difficulty" name="difficulty" class="form-control" required>
+                    <option value="1">Easy</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Hard</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="col-sm-2 control-label" for="content">Content</label>
+            <div class="col-sm-10">
+                <textarea rows=10 id="content" name="content" class="form-control" required></textarea>
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="col-sm-2 control-label" for="main_file_code">Main Codes</label>
+            <div class="col-sm-10">
+                <textarea rows=10 id="main_file_code" name="main_file_code" class="form-control" required></textarea>
+                <div id="main_codes_editor"></div>
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="col-sm-2 control-label" for="solution_start_code">Solution Start Codes</label>
+            <div class="col-sm-10">
+                <textarea rows=10 id="solution_start_code" name="solution_start_code" class="form-control" required></textarea>
+                <div id="solution_start_code_editor"></div>
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="col-sm-2 control-label" for="default_testcase">Default Testcase</label>
+            <div class="col-sm-10">
+                <textarea rows=5 id="default_testcase" name="default_testcase" class="form-control" required></textarea>
+            </div>
+        </div>
+        <div class="form-group has-feedback">
+            <label class="col-sm-2 control-label" for="tags">Tags</label>
+            <div class="col-sm-10">
+                <input type="text" id="tags" name="tags" class="form-control" required>
+            </div>
+        </div>
+    </form>
+    <button id="action-button" type="button" class="btn btn-default pull-right" onclick="create_or_update(this)"></button>
+</section>
+<hr class="custom">
+<link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
+<script type="text/javascript" src="{% static 'parts/ace/ace.js' %}"></script>
+
+<div id="msg-modal" class="modal fade">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+       return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    function fill_form(action=null, slug=null, data=null) {
+        var form = $("#create-update-form");
+        $("#action-button").attr("action", action).attr("slug", slug);
+
+        if (data !== null) {
+            for (var key in data) {
+                if (key === "get_abs_url") continue;
+                if (data.hasOwnProperty(key)) {
+                    $("#" + key).val(data[key]);
+                }
+            }
+        }
+
+        $("#main_file_code").hide();
+        var target =$("#main_file_code").parent();
+        apply_ace_editor(target);
+
+        $("#solution_start_code").hide();
+        var target = $("#solution_start_code").parent();
+        apply_ace_editor(target);
+        if (action === "create") {
+            $("#action-button").append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
+        } else {
+            $("#action-button").append('<i class="fa fa-save" aria-hidden="true"></i> SAVE');
+        }
+    }
+
+    function apply_ace_editor(target) {
+        var code_content = target.find("textarea").val();
+        // create ace editor
+        var _editor = ace.edit(target.find("div").attr("id"));
+        _editor.$blockScrolling = Infinity;
+        _editor.container.style.height = "300px";
+        _editor.container.style.weight = "100%";
+        _editor.resize();
+        _editor.setTheme("ace/theme/chrome");
+        _editor.setShowPrintMargin(false);
+        _editor.setFontSize(13);
+        _editor.setStyle("editor");
+
+        // setup editor session
+        _editor.getSession().setUseWorker(false);
+        _editor.getSession().setUseSoftTabs(true);
+        _editor.getSession().setValue(code_content);
+        _editor.getSession().setMode("ace/mode/python");
+
+        // added event listener to update code textarea
+        // pass session into the function to bind the corresponding textarea.
+        _editor.getSession().on("change", function(e, _session) {{
+            var code = target.find("textarea");
+            code.val(_session.getValue());
+        }});
+    }
+
+    function render_page() {
+        var path_list = $(location).attr("pathname").match(/[^\/]+/g);
+
+        if (path_list.length === 1) {
+            var action = path_list[0];
+        } else {
+            var slug = path_list[0];
+            var action = path_list[1];
+        }
+
+        var section = $("section.create-update");
+        if (action === "create") {
+            section.prepend($("<h1></h1>").text("Create Problem"));
+            fill_form(action=action, slug=null, data=null);
+        } else {
+            $.ajax({
+                type: "get",
+                url: "/api/problems/" + slug + "/update/",
+                success: function(data) {
+                    console.log(data);
+                    section.prepend($("<h1></h1>").text("Update Problem - " + data["title"]));
+                    fill_form(action=action, slug=slug, data=data);
+                },
+                error: function(xhr, emsgs, err) {
+                    console.log(emsgs);
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+        }
+
+    }
+
+    function parse_tags(value) {
+        if (value === "") {
+            return value;
+        }
+        return JSON.stringify(value.match(/[^,]+/g));
+    }
+
+    function render_modal(title="", messages=[], action=null, url=null) {
+        var modal = $("div#msg-modal");
+        // clear
+        modal.find(".modal-footer").remove();
+        modal.find(".modal-body").empty();
+
+        // set title
+        modal.find("h4").text(title);
+        if (action === "create" || action === "edit") {
+            for (var i = 0; i < messages.length; i++) {
+                var message = $("<p></p>").text(messages[i]);
+                modal.find(".modal-body").append(message);
+            }
+        } else if (action === "error") {
+            for (var key in messages) {
+                var message_title = $("<h5></h5>").text($("label[for=" +  key  + "]").text());
+                modal.find(".modal-body").append(message_title);
+                $(".modal-body h5").css({"color": "#A9353B"});
+                for (var i = 0; i < messages[key].length; i++) {
+                    var message = $("<p></p>").text(messages[key][i]);
+                    modal.find(".modal-body").append(message);
+                }
+            }
+        }
+
+        if (action === "edit") {
+            var modal_footer = $("<div></div>").addClass("modal-footer");
+            var stay_button = $("<button></button>").addClass("btn btn-default")
+                                                    .attr("data-dismiss", "modal")
+                                                    .text("STAY");
+            var leave_button = $("<a></a>").addClass("btn btn-primary")
+                                           .attr("href", url)
+                                           .text("LEAVE");
+            modal_footer.append(stay_button).append(leave_button);
+            modal.find(".modal-content").append(modal_footer);
+        }
+        modal.modal('show');
+    }
+
+    function parse_error_messages(messages) {
+        var messages
+    }
+
+    function create_or_update(button) {
+        var action = $(button).attr("action");
+        var slug = $(button).attr("slug");
+        $("#tags").val(parse_tags($("#tags").val()));
+        var data = $("#create-update-form").serialize();
+        console.log(data);
+        if (action === "create") {
+            var url = "/api/problems/create/";
+            var type = "post";
+        } else if (action === "edit") {
+            var url = "/api/problems/" + slug + "/update/";
+            var type = "put";
+        } else {
+            alert("unknown action");
+            return false;
+        }
+
+        $.ajax({
+            type: type,
+            url: url,
+            data: data,
+            success: function(data) {
+                var message = "Your solution has been {action} successfully!!"
+                message = message.replace("{action}", (action === "create"?"created":"updated"));
+                var url = data["get_abs_url"];
+                render_modal("Success!!!", [message], action, url);
+                if (action === "create") {
+                    setTimeout(function() {
+                        window.location.href = url;
+                    }, 2000);
+                }
+            },
+            error: function(xhr, emsgs, err) {
+                var messages = JSON.parse(xhr.responseText);
+                console.log(messages);
+                render_modal("Error!!", messages, "error", null);
+            }
+        });
+    }
+{% endblock %}
+{% block js_document_ready %}
+render_page();
 {% endblock %}

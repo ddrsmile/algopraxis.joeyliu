@@ -153,5 +153,7 @@ class ProblemCreateUpdateSerializer(TagSerializer, serializers.ModelSerializer):
             'content',
             'main_file_code',
             'solution_start_code',
+            'default_testcase',
             'tags',
+            'get_abs_url',
         ]
