@@ -89,7 +89,7 @@ class ProblemTaggedListView(View):
 
 class ProblemCreateView(View):
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         form = ProblemForm()
         context = {'form': form}
@@ -97,7 +97,7 @@ class ProblemCreateView(View):
         return render(request, template, context)
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         form = ProblemForm(request.POST)
         if form.is_valid():
@@ -113,7 +113,7 @@ class ProblemCreateView(View):
 
 class ProblemUpdateView(View):
     def get(self, request, slug=None, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         problem = get_object_or_404(Problem, slug=slug)
         form = ProblemForm(instance=problem)
@@ -123,7 +123,7 @@ class ProblemUpdateView(View):
         return render(request, template, context)
 
     def post(self, request, slug=None, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         problem = get_object_or_404(Problem, slug=slug)
         form = ProblemForm(request.POST, instance=problem)
