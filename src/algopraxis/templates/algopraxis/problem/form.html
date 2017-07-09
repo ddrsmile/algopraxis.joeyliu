@@ -38,6 +38,13 @@
         border: 1px solid #e0e0e0;
         border-radius: 4px;
     }
+    section .btn {
+        width: 100px;
+    }
+    .modal-footer .btn+.btn {
+        margin-left: 5px;
+        margin-bottom: 0;
+    }
     .modal-header {
         border: none;
     }
@@ -52,13 +59,6 @@
         color: #A9353B;
     }
 </style>
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
 <section class="create-update clearfix">
     <hr class="custom">
     <form id="create-update-form" class="form-horizontal" role="form" novalidate>
@@ -111,7 +111,12 @@
             </div>
         </div>
     </form>
-    <button id="action-button" type="button" class="btn btn-default pull-right" onclick="create_or_update(this)"></button>
+    <div class="control-panel pull-right">
+        <ul class="control-ul">
+            <li class="control-component"><button id="create-update-button" type="button" class="btn btn-default action-button" onclick="create_or_update(this)"></button></li>
+            <li class="control-component hidden"><button id="delete-button" type="button" class="btn btn-primary action-button" onclick="delete_problem(this)"></button></li>
+        </ul>
+    </div>
 </section>
 <hr class="custom">
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
@@ -163,7 +168,7 @@
     });
     function fill_form(action=null, slug=null, data=null) {
         var form = $("#create-update-form");
-        $("#action-button").attr("action", action).attr("slug", slug);
+        $(".action-button").attr("action", action).attr("slug", slug);
 
         if (data !== null) {
             for (var key in data) {
@@ -182,9 +187,12 @@
         var target = $("#solution_start_code").parent();
         apply_ace_editor(target);
         if (action === "create") {
-            $("#action-button").append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
+            $("#create-update-button").append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
         } else {
-            $("#action-button").append('<i class="fa fa-save" aria-hidden="true"></i> SAVE');
+            $("#create-update-button").append('<i class="fa fa-save" aria-hidden="true"></i> SAVE');
+            $("#delete-button").parents("li").removeClass("hidden")
+            $("#delete-button").append('<i class="fa fa-trash-o" aria-hidden="true"></i> DELETE');
+
         }
     }
 
@@ -256,25 +264,34 @@
 
     function render_modal(title="", messages=[], action=null, url=null) {
         var modal = $("div#msg-modal");
+        var modal_body = modal.find(".modal-body");
+        var modal_footer = modal.find(".modal-footer");
         // clear
-        modal.find(".modal-footer").remove();
-        modal.find(".modal-body").empty();
+        modal_body.empty();
+        modal_footer.remove();
 
         // set title
         modal.find("h4").text(title);
-        if (action === "create" || action === "edit") {
+
+        if (action === "create" || action === "edit" || action === "delete" ) {
             for (var i = 0; i < messages.length; i++) {
                 var message = $("<p></p>").text(messages[i]);
-                modal.find(".modal-body").append(message);
+                modal_body.append(message);
             }
         } else if (action === "error") {
             for (var key in messages) {
-                var message_title = $("<h5></h5>").text($("label[for=" +  key  + "]").text());
-                modal.find(".modal-body").append(message_title);
-                $(".modal-body h5").css({"color": "#A9353B"});
-                for (var i = 0; i < messages[key].length; i++) {
-                    var message = $("<p></p>").text(messages[key][i]);
-                    modal.find(".modal-body").append(message);
+                var message_title = $("label[for=" +  key  + "]").text();
+                console.log(message_title);
+                if (message_title) {
+                    modal_body.append($("<h5></h5>").text(message_title));
+                    modal_body.find("h5").css({"color": "#A9353B"});
+
+                    for (var i = 0; i < messages[key].length; i++) {
+                        var message = $("<p></p>").text(messages[key][i]);
+                        modal_body.append(message);
+                    }
+                } else {
+                    modal_body.append(messages[key]);
                 }
             }
         }
@@ -319,7 +336,7 @@
             url: url,
             data: data,
             success: function(data) {
-                var message = "Your solution has been {action} successfully!!"
+                var message = "The problem has been {action} successfully!!"
                 message = message.replace("{action}", (action === "create"?"created":"updated"));
                 var url = data["get_abs_url"];
                 render_modal("Success!!!", [message], action, url);
@@ -328,6 +345,27 @@
                         window.location.href = url;
                     }, 2000);
                 }
+            },
+            error: function(xhr, emsgs, err) {
+                var messages = JSON.parse(xhr.responseText);
+                console.log(messages);
+                render_modal("Error!!", messages, "error", null);
+            }
+        });
+    }
+    function delete_problem(button) {
+        var action = "delete";
+        var slug = $(button).attr("slug");
+        $.ajax({
+            type: "delete",
+            url: "/api/problems/" + slug + "/delete/",
+            success: function(data) {
+                var message = "The problem has been deleted successfully!!"
+                var url = "/";
+                render_modal("Success!!!", [message], action, url);
+                setTimeout(function() {
+                    window.location.href = url;
+                }, 2000);
             },
             error: function(xhr, emsgs, err) {
                 var messages = JSON.parse(xhr.responseText);
