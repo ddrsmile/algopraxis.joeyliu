@@ -7,6 +7,30 @@
         width: 80%;
         margin: auto;
     }
+    section h1 {
+        display: inline-block;
+    }
+    .edit-button {
+        display: inline-block;
+        background-color: #A9353B;
+        color: #FFFFFF;
+        padding: 0 0.2rem;
+        font-size: 0.6rem;
+        border-radius: 3px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    .edit-button:active,
+    .edit-button:hover,
+    .edit-button:visited,
+    .edit-button:focus {
+        color: #FFFFFF;
+        opacity: 0.75;
+    }
+    .edit-button:focus {
+        border: none;
+        outline: 0 none;
+    }
     pre {
         margin: auto;
     }
@@ -43,6 +67,9 @@
 </style>
 
 <section class="problem">
+    {% if request.user.is_superuser %}
+    <a class="edit-button"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> EDIT</a>
+    {% endif %}
 </section>
 <hr class="custom">
 <section class="coderunner">
@@ -222,8 +249,9 @@
 
     function render_problem(data) {
         var section = $("section.problem");
-        $("<h1></h1>").text(data["title"]).appendTo(section);
+        $("<h1></h1>").text(data["title"]).prependTo(section);
         $("<div></div>").html(data["get_markdown_content"]).appendTo(section);
+        $("a.edit-button").attr("href", window.location.pathname + 'edit/');
     }
 
     function render_solution(data) {

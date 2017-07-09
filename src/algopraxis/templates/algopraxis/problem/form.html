@@ -174,7 +174,11 @@
             for (var key in data) {
                 if (key === "get_abs_url") continue;
                 if (data.hasOwnProperty(key)) {
-                    $("#" + key).val(data[key]);
+                    if (key === "tags") {
+                        $("#" + key).val(data[key].join(", "));
+                    } else {
+                        $("#" + key).val(data[key]);
+                    }
                 }
             }
         }
@@ -255,13 +259,6 @@
 
     }
 
-    function parse_tags(value) {
-        if (value === "") {
-            return value;
-        }
-        return JSON.stringify(value.match(/[^,]+/g));
-    }
-
     function render_modal(title="", messages=[], action=null, url=null) {
         var modal = $("div#msg-modal");
         var modal_body = modal.find(".modal-body");
@@ -314,11 +311,36 @@
         var messages
     }
 
+    function parse_tags_to_json(value) {
+        if (value === "") {
+            return value;
+        }
+        var items = value.match(/[^,]+/g);
+
+        for (var i = 0; i < items.length; i++) {
+            items[i] = items[i].trim();
+        }
+        return JSON.stringify(items);
+    }
+
+    function parse_tags_to_list(value) {
+        if (value === "") {
+            return value;
+        }
+        value = value.replace(/\[|\]|\"/g,'');
+        var items = value.match(/[^,]+/g);
+        for (var i = 0; i < items.length; i++) {
+            items[i] = items[i].trim();
+        }
+        return items.join(", ");
+    }
+
     function create_or_update(button) {
         var action = $(button).attr("action");
         var slug = $(button).attr("slug");
-        $("#tags").val(parse_tags($("#tags").val()));
+        $("#tags").val(parse_tags_to_json($("#tags").val()));
         var data = $("#create-update-form").serialize();
+        $("#tags").val(parse_tags_to_list($("#tags").val()));
         console.log(data);
         if (action === "create") {
             var url = "/api/problems/create/";
@@ -361,7 +383,7 @@
             url: "/api/problems/" + slug + "/delete/",
             success: function(data) {
                 var message = "The problem has been deleted successfully!!"
-                var url = "/";
+                var url = "/problems/";
                 render_modal("Success!!!", [message], action, url);
                 setTimeout(function() {
                     window.location.href = url;
