@@ -62,6 +62,16 @@ class Parser(object):
 
         return output
 
+    def parse_list_result(self, results):
+        outputs = []
+        output = '[{}]'
+        for result in results:
+            if result:
+                outputs.append(output.format(', '.join([str(x) for x in result])))
+            else:
+                outputs.append('[]')
+        return outputs
+
 class IntegerParser(Parser):
     def __init__(self, path):
         super(IntegerParser, self).__init__(path)

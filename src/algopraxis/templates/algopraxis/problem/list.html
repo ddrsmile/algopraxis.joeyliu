@@ -30,6 +30,9 @@
     .list-container table thead tr th:first-child {
         width: 1.5rem;
     }
+    .list-container table thead tr th:nth-child(2) {
+        width: 3rem;
+    }
     .list-container table thead tr th:last-child {
         width: 5rem;
     }
@@ -57,6 +60,15 @@
     .pagination>li {
         display: inline-block;
     }
+    .pagination>li:first-child {
+        margin-right: 3rem;
+    }
+    .pagination>li:last-child {
+        margin-left: 3rem;
+    }
+    .pagination>li:not(:first-child):not(:last-child) {
+        margin: 0 0.2rem;
+    }
     .pagination>li>a,
     .pagination>li>span {
         width: 1.8rem;
@@ -68,25 +80,23 @@
         padding: 0;
         margin: 0;
     }
+    .pagination>li>span.page_link {
+        cursor:pointer;
+    }
     .pagination>li>a:hover,
     .pagination>li>span:hover {
         color: #A9353B;
         border-color: rgba(169, 53, 59, 0.1);
-        background-color: rgba(169, 53, 59, 0.1);
+        background-color: rgba(169, 53, 59, 0.2);
     }
     .pagination>li.disabled>a,
-    .pagination>li.disabled>span,
+    .pagination>li.disabled>span {
+        color: #A9353B;
+        border-color: rgba(169, 53, 59, 0.2);
+    }
      .pagination>li.disabled>a:hover,
     .pagination>li.disabled>span:hover {
-        background-color: #ECECEC;
-    }
-    .pagination>li:first-child>a,
-    .pagination>li:first-child>span {
-        margin-right: 3rem;
-    }
-    .pagination>li:last-child>a,
-    .pagination>li:last-child>span {
-        margin-left: 3rem;
+        background-color: rgba(169, 53, 59, 0.1);
     }
     .pagination>li.active>span {
         background-color: #A9353B;
@@ -123,47 +133,120 @@
                 </tr>
             </thead>
             <tbody class="list-table-body">
-                {% for problem in problems %}
-                    <tr>
-                        <td>
-                            {% if problem.has_solution %}
-                                <i class="fa fa-check" aria-hidden="true"></i>
-                            {% endif %}
-                        </td>
-                        <td>{{ problem.prob_no }}</td>
-                        <td><a class="problem-url" href="{{ problem.get_abs_url }}">{{ problem.title }}</a></td>
-                        <td><span class="label difficulty">{{ problem.get_difficulty }}</span></td>
-                    </tr>
-                {% endfor %}
             </tbody>
         </table>
         <div class="pagination-box">
             <div class="pagination-wrap">
                 <ul class="pagination">
-                    {% if page_obj.has_previous %}
-                    <li><a href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
-                    {% else %}
-                    <li class="disabled"><span><i class="fa fa-angle-double-left" aria-hidden="true"></i></span></li>
-                    {% endif %}
-
-                    {% for i in customized_range %}
-                        {% if page_obj.number == i %}
-                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-                        {% else %}
-                            <li><a href="?page={{ i }}">{{ i }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                    <li><a href="?page={{ page_obj.next_page_number }}"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
-                    {% else %}
-                    <li class="disabled"><span><i class="fa fa-angle-double-right" aria-hidden="true"></i></span></li>
-                    {% endif %}
-
                 </ul>
             </div>
         </div>
     </article>
 </section>
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
+{% endblock %}
+{% block extra_js %}
+difficulty = {1: "EASY", 2:"MEDIUM", 3:"HARD"};
+
+function build_problem_list_item(problem) {
+    var item = $("<tr></tr>");
+    var mark = problem.has_solution > 0?$("<td><i class='fa fa-check' aria-hidden='true'></i></td>"):$("<td></td>");
+    item.append(mark);
+    item.append($("<td></td>").text(problem.id));
+    var link = $("<a>" + problem.title + "</a>");
+    link.attr("href", problem.get_abs_url);
+    item.append($("<td></td>").append(link));
+    item.append($("<td></td>").append($("<span class='label difficulty'></span>").text(difficulty[problem.difficulty])));
+    return item;
+}
+
+function build_problem_list(problems) {
+    var table = $("table.list-table");
+    var container = table.find("tbody");
+    $.each(problems, function(index) {
+        var item = build_problem_list_item(this);
+        container.append(item);
+    });
+}
+
+function build_pagination_item(kwargs=null) {
+    var item = $("<li></li>");
+    var item_content = $("<span></span>");
+    if (kwargs["previous"] || kwargs["next"]) {
+        if (!kwargs["page_number"]) {
+            item.attr("class", "disabled");
+        } else {
+            item_content.attr("class", "page_link");
+        }
+        item_content.attr("page_number", kwargs["page_number"])
+                    .append(
+                        $("<i></i>")
+                        .attr("class", kwargs["i_class"])
+                        .attr("aria-hidden", "true")
+                    );
+    } else if (kwargs["page_range"]) {
+        if (kwargs["is_current_page"]) {
+            item.attr("class", "active");
+        } else {
+            item_content.attr("class", "page_link");
+        }
+        item_content.attr("page_number", kwargs["page_number"])
+                    .text(kwargs["page_number"]);
+    }
+    item.append(item_content);
+    return item;
+}
+
+function build_pagination(results) {
+    var pagination = $(".pagination");
+    item = build_pagination_item(kwargs={"previous": true,
+                                         "i_class": "fa fa-angle-double-left",
+                                         "page_number": results["previous_page_num"]});
+    pagination.append(item);
+    var page_range = results["page_range"];
+
+
+    for (var i = 0; i < page_range.length; i++) {
+        item = build_pagination_item(kwargs={"page_range": true,
+                                             "is_current_page": results["current_page"] == page_range[i],
+                                             "page_number": page_range[i]});
+        pagination.append(item);
+    }
+    item = build_pagination_item(kwargs={"next":true,
+                                         "i_class": "fa fa-angle-double-right",
+                                         "page_number": results["next_page_num"]});
+    pagination.append(item);
+}
+
+function clear_content() {
+    $(".pagination").empty();
+    $("table.list-table").find("tbody").empty();
+}
+
+function change_page() {
+    $(".pagination").on("click", "li>span.page_link", function() {
+        clear_content();
+        render_page(page=$(this).attr("page_number"));
+    });
+}
+
+function render_page(page='') {
+    $.ajax({
+        type: "get",
+        url: "{% url 'algopraxis:api:list' %}" + (page? "?page=" + page:''),
+        success: function(data) {
+            build_problem_list(data["results"]);
+            build_pagination(data);
+        },
+        error: function(xhr, emsgs, err) {
+            console.log(emsgs);
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+}
+
+{% endblock %}
+{% block js_document_ready %}
+render_page();
+change_page();
 {% endblock %}

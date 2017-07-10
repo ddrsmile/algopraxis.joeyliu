@@ -104,7 +104,9 @@
       <li class="sidebar-brand"><a href="/">ALGOPRAXIS</a></li>
       <li><a href="/problems/">PROBLEMS</a></li>
       {% if request.user.is_authenticated %}
-        <li><a href="/create/">CREATE</a></li>
+        {% if request.user.is_superuser %}
+          <li><a href="/create/">CREATE</a></li>
+        {% endif %}
         <li><a href="/signout/">SIGN OUT</a></li>
       {% else %}
         <li><a href="/signin/?next={{request.path}}">SIGN IN</a></li>

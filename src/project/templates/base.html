@@ -17,6 +17,13 @@
                 src: local('anurati'), url({% static "fonts/anurati.otf" %}) format('opentype');
                 unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
             }
+            @font-face {
+                font-family: 'ubuntu';
+                font-style: normal;
+                font-weight: 400;
+                src: local('anurati'), url({% static "fonts/ubuntu_font.woff2" %}) format('woff');
+                unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+            }
             html {
                 -ms-text-size-adjust: 100%;
                 -webkit-text-size-adjust: 100%;
@@ -36,7 +43,7 @@
                 line-height: 1.5;
             }
             h1 {
-                font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+                font-family: 'ubuntu', sans-serif;
                 font-size: 2rem;
                 color: #A9353B;
             }
@@ -100,9 +107,34 @@
                 background-color: rgba(0,0,0,.4);
                 z-index: 11;
             }
-            a, a:hover, a:active, a:visited {
+            a, a:hover, a:active, a:visited, a:focus {
                 color: #A9353B;
                 text-decoration:none;
+            }
+            .btn-default {
+                color: #A9353B;
+                border-color: rgba(169, 53, 59, 0.2);
+            }
+            .btn-primary {
+                background-color: #A9353B;
+                border-color: #651F23;
+            }
+            .btn-default:hover,
+            .btn-default:active,
+            .btn-default:focus,
+            .btn-default[disabled]:hover,
+            .btn-default[disabled]:focus {
+                color: #A9353B;
+                background-color: rgba(169, 53, 59, 0.1);
+                border-color: rgba(169, 53, 59, 0.2);
+            }
+            .btn-primary:hover,
+            .btn-primary:active,
+            .btn-primary:focus,
+            .btn-primary[disabled]:hover,
+            .btn-primary[disabled]:focus {
+                background-color: #872A2F;
+                border-color: #51191C;
             }
             @media only screen
               and (min-width: 320px)
@@ -177,7 +209,6 @@
             {% block extra_js %}{% endblock %}
             $( function() {
                 $(document).ready(function(){
-                    $('[data-toggle="tooltip"]').tooltip();
 
                     sidebar_func();
 

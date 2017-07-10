@@ -8,8 +8,8 @@ from django.views import View, generic
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .models import Problem, Solution, TestCase
-from .forms import ProblemForm, SolutionForm, TestCaseForm
+from .models import Problem
+from .forms import ProblemForm, SolutionForm
 
 from coderunner.src.runner import Runner
 
@@ -89,7 +89,7 @@ class ProblemTaggedListView(View):
 
 class ProblemCreateView(View):
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         form = ProblemForm()
         context = {'form': form}
@@ -97,7 +97,7 @@ class ProblemCreateView(View):
         return render(request, template, context)
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         form = ProblemForm(request.POST)
         if form.is_valid():
@@ -113,7 +113,7 @@ class ProblemCreateView(View):
 
 class ProblemUpdateView(View):
     def get(self, request, slug=None, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         problem = get_object_or_404(Problem, slug=slug)
         form = ProblemForm(instance=problem)
@@ -123,7 +123,7 @@ class ProblemUpdateView(View):
         return render(request, template, context)
 
     def post(self, request, slug=None, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated() and request.user.is_superuser():
             return Http404
         problem = get_object_or_404(Problem, slug=slug)
         form = ProblemForm(request.POST, instance=problem)
@@ -149,13 +149,11 @@ class ProblemDetail(View):
     def get(self, request, slug=None, *args, **kwargs):
         problem = get_object_or_404(Problem, slug=slug)
         solution = problem.solutions.first()
-        testcase = problem.testcases.first()
         solution_form = SolutionForm(instance=solution) if solution else SolutionForm(initial={'code': problem.solution_start_code})
-        testcase_form = TestCaseForm(instance=testcase)
         context = {
             'problem': problem,
             'solution_form': solution_form,
-            'testcase_form': testcase_form
+            'slug': slug
         }
         template = 'algopraxis/problem/detail.html'
 
@@ -181,29 +179,8 @@ class SolutionSaveView(View):
             emsgs = json.dumps(solution_form.errors)
             return HttpResponse(emsgs, status=400, content_type='application/json')
 
-class TestCaseSaveView(View):
-    def post(self, request, slug=None, *args, **kwargs):
-        if not request.user.is_authenticated():
-            emsgs = json.dumps('The user is invalid!!')
-            return HttpResponse(emsgs, status=404, content_type='application/json')
-        problem = get_object_or_404(Problem, slug=slug)
-        testcase = problem.testcases.first()
-        testcase_form = TestCaseForm(request.POST, instance=testcase)
-        if testcase_form.is_valid():
-            testcase = testcase_form.save(commit=False)
-            if not testcase.problem_id:
-                testcase.problem = problem
-            testcase.save()
-            return HttpResponse({})
-        else:
-            emsgs = json.dumps(testcase_form.errors)
-            return HttpResponse(emsgs, status=400, content_type='application/json')
-
 class RunView(View):
     def post(self, request, slug=None, *args, **kwargs):
-        if not request.user.is_authenticated():
-            emsgs = json.dumps('The user is invalid!!')
-            return HttpResponse(emsgs, status=404, content_type='application/json')
         problem = get_object_or_404(Problem, slug=slug)
         main_content = problem.main_file_code
         sol_content = request.POST.get('code')
