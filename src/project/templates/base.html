@@ -137,9 +137,10 @@
                 -webkit-transition-duration: .3s;
                 transition-duration: .3s;
             }
+            button:focus {outline:0;}
             .btn,
             .btn[disabled] {
-                display: block;
+                display: inline-block;
                 border: none;
                 border-radius: 0;
                 font-size: 0.8rem;
@@ -148,6 +149,7 @@
                 padding: 0;
                 text-align: center;
                 box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+                outline:none;
             }
             .btn:active,
             .btn:hover,
@@ -155,6 +157,7 @@
                 box-shadow: 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12), 0 2px 4px -1px rgba(0,0,0,.2);
                 -webkit-transition: background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1),-webkit-box-shadow .2s cubic-bezier(.4,0,1,1);
                 transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1);
+                outline: none !important;
             }
             .btn[disabled]:hover,
             .btn[disabled]:focus {
@@ -167,9 +170,9 @@
             .btn-default:hover,
             .btn-default:active,
             .btn-default:focus {
-                color: #A9353B;
-                background-color: rgba(169, 53, 59, 0.1);
-                border-color: rgba(169, 53, 59, 0.2);
+                color: #A9353B !important;
+                background-color: rgba(169, 53, 59, 0.1) !important;
+                border-color: rgba(169, 53, 59, 0.2) !important;
             }
             .btn-default[disabled]:hover,
             .btn-default[disabled]:focus {
@@ -186,8 +189,8 @@
             .btn-primary:focus,
             .btn-primary[disabled]:hover,
             .btn-primary[disabled]:focus {
-                background-color: #A9353B;
-                color: #FFF;
+                background-color: #A9353B !important;
+                color: #FFF !important;
             }
             @media only screen
               and (min-width: 320px)

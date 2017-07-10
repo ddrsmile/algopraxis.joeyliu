@@ -108,8 +108,10 @@
 </section>
 <hr class="custom">
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'parts/simplemde/simplemde.min.css' %}">
 <script type="text/javascript" src="{% static 'parts/ace/ace.js' %}"></script>
-
+<script type="text/javascript" src="{% static 'parts/simplemde/simplemde.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'parts/simplemde/utils/markdown_latex_support.js' %}"></script>
 <div id="msg-modal" class="modal fade">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -178,6 +180,7 @@
         $("#solution_start_code").hide();
         var target = $("#solution_start_code").parent();
         apply_ace_editor(target);
+        apply_simple_editor();
         if (action === "create") {
             $("#create-update-button").append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
         } else {
@@ -188,6 +191,14 @@
         }
     }
 
+    function apply_simple_editor() {
+        new SimpleMDE({
+            element: document.getElementById("content"),
+            forceSync: true,
+            spellChecker: false,
+             previewRender: latex_support
+        })
+    }
     function apply_ace_editor(target) {
         var code_content = target.find("textarea").val();
         // create ace editor
@@ -234,12 +245,10 @@
                 type: "get",
                 url: "/api/problems/" + slug + "/update/",
                 success: function(data) {
-                    console.log(data);
                     section.prepend($("<h1></h1>").text("Update Problem - " + data["title"]));
                     fill_form(action=action, slug=slug, data=data);
                 },
                 error: function(xhr, emsgs, err) {
-                    console.log(emsgs);
                     console.log(xhr.status + ": " + xhr.responseText);
                 }
             });
