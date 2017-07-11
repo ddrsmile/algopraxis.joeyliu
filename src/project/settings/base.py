@@ -63,16 +63,9 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 import csv
-DB_INFO = csv.reader(open('/usr/local/etc/dbinfo_url.csv'), delimiter=',')
+DB_INFO = csv.reader(open('/usr/local/etc/dbinfo_algopraxis.csv'), delimiter=',')
 DB_INFO = next(DB_INFO)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -87,7 +80,6 @@ DATABASES = {
 
     }
 }
-"""
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
