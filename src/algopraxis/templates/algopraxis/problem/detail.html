@@ -44,15 +44,18 @@
     .control-component {
         display: inline-block;
     }
+    .btn-custom {
+        margin: auto;
+        width: 150px;
+    }
     .problem {
         margin-top: 1rem
     }
     #id_lang_mode {
         width: 10rem;
     }
-    .editor {
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
+    .ace_editor {
+        box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
     }
     .coderunner .row {
         margin-bottom: 15px;
@@ -97,10 +100,10 @@
                 <div class="control-box pull-right">
                     <ul class="control-ul">
                         <li class="control-component">
-                            <button id="run-code" class="btn btn-default" type="button" onclick="run()"><i class="fa fa-play-circle-o" aria-hidden="true"></i> RUN</button>
+                            <button id="run-code" class="btn btn-default btn-custom" type="button" onclick="run()"><i class="fa fa-play-circle-o" aria-hidden="true"></i> RUN</button>
                         </li>
                         <li class="control-component">
-                            <button id="save-solution" class="btn btn-default" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()"><i class="fa fa-save" aria-hidden="true"></i> SAVE</button>
+                            <button id="save-solution" class="btn btn-default btn-custom" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()"><i class="fa fa-save" aria-hidden="true"></i> SAVE</button>
                         </li>
                     </ul>
                 </div>
