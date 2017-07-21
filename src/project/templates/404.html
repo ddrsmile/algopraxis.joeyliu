@@ -1,9 +1,34 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block body_class %}template-404{% endblock %}
-
-{% block content %}
-    <h1>Page not found</h1>
-
-    <h2>Sorry, this page could not be found.</h2>
-{% endblock %}
+{% block header %}
+    <style type="text/css">
+        hr.message:after {
+            font-family: "anurati";
+            content: 'PAGE NOT FOUND';
+            display: inline-block;
+            position: relative;
+            top: -1.4rem;
+            padding: 0 1rem;
+            background: #FFFFFF;
+            color: #A9353B;
+            font-size: 2rem;
+            letter-spacing: 1rem;
+        }
+        hr.custom {
+            margin: 25% auto;
+        }
+        @media only screen
+          and (min-width: 320px)
+          and (max-width: 568px) {
+            hr.message:after {
+                top: -1.1rem;
+                font-size: 1.5rem;
+            }
+            hr.custom {
+                margin: 50% auto;
+            }
+        }
+    </style>
+    <hr class="custom message" />
+{% endblock header %}

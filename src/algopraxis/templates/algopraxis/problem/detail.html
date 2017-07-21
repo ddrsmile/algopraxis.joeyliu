@@ -49,7 +49,7 @@
         width: 150px;
     }
     .problem {
-        margin-top: 1rem
+        margin-top: 3rem
     }
     #id_lang_mode {
         width: 10rem;
@@ -66,6 +66,22 @@
     .modal-title {
         font-family: 'ubuntu', sans-serif;
         color: #A9353B;
+    }
+    @media only screen
+      and (min-width: 320px)
+      and (max-width: 568px) {
+        .button-box {
+            text-align: center;
+        }
+        .button-box>.control-box {
+            float: none !important;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .btn-custom {
+            width: 120px;
+        }
     }
 </style>
 
@@ -96,7 +112,7 @@
             <div class="col-md-8 col-sm-7">
                 <textarea name="content" cols="40" rows="5" class="form-control" id="id_testcases"></textarea>
             </div>
-            <div class="col-md-4 col-sm-5">
+            <div class="col-md-4 col-sm-5 button-box">
                 <div class="control-box pull-right">
                     <ul class="control-ul">
                         <li class="control-component">
@@ -208,7 +224,6 @@
         post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
         post_data["code"] = $("#solution-form").find("#id_code").val()
         post_data["testcases"] = $("#id_testcases").val();
-        // url: "{% url 'algopraxis:run' slug=problem.slug %}",
         $.ajax({
             type: "get",
             url: "/api/run" + slug,
