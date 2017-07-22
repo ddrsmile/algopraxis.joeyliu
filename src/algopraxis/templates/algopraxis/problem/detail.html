@@ -223,10 +223,10 @@
     };
 
     function run(button) {
-        $('html, body').scrollTop( $(document).height() );
         var result_panel = $("section.coderunner .result-panel");
         result_panel.empty();
         result_panel.append($("<i></i>").addClass("fa fa-spinner fa-pulse fa-2x fa-fw"));
+        $('html, body').scrollTop( $(document).height() );
         $(button).prop("disabled", true);
         var slug = $(location).attr("pathname");
         var post_data = {};
@@ -240,6 +240,7 @@
             success: function(data) {
                 $("section.coderunner .result-panel").empty();
                 render_results(data);
+                $('html, body').scrollTop( $(document).height() );
                 $(button).prop("disabled", false);
             },
             error: function(xhr, emsgs, err) {
