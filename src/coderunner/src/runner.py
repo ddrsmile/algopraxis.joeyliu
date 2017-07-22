@@ -66,4 +66,8 @@ class Runner:
             self.unload()
             shutil.rmtree(os.path.join(WORKPLACE, self.work_dir))
 
-
+def run(main_content, sol_content, input_data):
+    runner = Runner()
+    runner.set_files(main_content, sol_content, input_data)
+    outputs = runner.run()
+    return outputs

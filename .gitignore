@@ -10,3 +10,4 @@ src/static/*
 src/media/*
 .vscode/
 .idea/
+celerybeat-schedule.db

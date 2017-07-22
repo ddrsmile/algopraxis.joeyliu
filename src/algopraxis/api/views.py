@@ -24,7 +24,7 @@ from algopraxis.api.serializers import (
     SolutionSerializer,
 )
 
-from coderunner.src.runner import Runner
+from coderunner.tasks import run_codes
 
 # Problem
 class ProblemCreateAPIView(CreateAPIView):
@@ -119,8 +119,6 @@ class RunAPIView(APIView):
         main_content = problem.main_file_code
         sol_content = request.GET.get('code')
         input_data = request.GET.get('testcases')
-        runner = Runner()
-        runner.set_files(main_content, sol_content, input_data)
-        outputs = runner.run()
-
+        ansyc_result = run_codes.delay(main_content, sol_content, input_data)
+        outputs = ansyc_result.get()
         return Response(outputs)

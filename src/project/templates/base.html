@@ -230,6 +230,7 @@
         <script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
         <script async type="text/javascript" src="{% static 'js/project.js' %}"></script>
+        {% block extra_import_js %}{% endblock %}
         <script>
             function sidebar_func() {
                 var trigger = $('.hamburger'),
