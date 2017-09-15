@@ -38,8 +38,17 @@
         margin: 1rem;
     }
     .control-ul {
-        list-style-type: none;
+        list-style: none;
         padding: 0;
+    }
+    .control-ul li {
+        padding: 0;
+        margin: 0;
+    }
+    .control-ul select {
+      margin: 0;
+      text-align: center;
+    text-align-last: center;
     }
     .control-component {
         display: inline-block;
@@ -96,12 +105,12 @@
 <hr class="custom">
 <section class="coderunner">
     <form id="solution-form" role="form" novalidate>
-        <div class="control-panel hidden">
-            <ul class="control_ul">
-                <li><select id="id_lang_mode" name="lang_mode">
-                    <option value="python3" >Python 3</option>
+        <div class="control-panel">
+            <ul class="control-ul">
+                <li><select id="id_lang_mode" name="lang_mode" class="form-control" onchange="update_code_mode(this)">
+                    <option value="python" >Python 3</option>
                     <option value="java" >Java</option>
-                    <option value="c++" >C++</option>
+                    <option value="c_cpp" >C++</option>
                 </select></li>
             </ul>
         </div>
@@ -148,183 +157,230 @@
     </div>
   </div>
 </div>
+<div id="solutions">
+</div>
 {% endblock %}
 {% block extra_import_js %}
 <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
 <script type="text/javascript" src="{% static 'parts/ace/ace.js' %}"></script>
 {% endblock %}
 {% block extra_js %}
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
+function getCookie(name) {
+  var cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = jQuery.trim(cookies[i]);
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+function csrfSafeMethod(method) {
+// these HTTP methods do not require CSRF protection
+ return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+  beforeSend: function(xhr, settings) {
+    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+      xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    }
+  }
+});
+
+function save_solution() {
+  var slug = $(location).attr("pathname");
+  $.ajax({
+    type: "post",
+    url: "/api/solution" + slug + "create_or_update/" + $("#id_lang_mode").val(),
+    data: $('#solution-form').serialize(),
+    success: function(result) {
+      // update window.solutions if save is successful.
+      window.solutions[$("#id_lang_mode").val()] = $("#id_code").val();
+      var modal = $("div#msg-modal");
+      modal.find("h4").text("Success!!!");
+      var body_content = $("<p></p>").text("Your solution has been saved successfully!!");
+      modal.find(".modal-body").empty().append(body_content);
+      modal.modal('show');
+      setTimeout(function() {
+          modal.modal('hide');
+      }, 3000);
+    },
+    error: function(xhr, emsgs, err) {
+      var modal = $("div#msg-modal");
+      modal.find("h4").text("Error!!!");
+      modal.find(".modal-body").empty()
+           .append($("<p></p>").text("Your solution was not saved successfully!!"))
+           .append($("<p></p>").text(xhr.status + ": " +err));
+      modal.modal('show');
+      setTimeout(function() {
+          modal.modal('hide');
+      }, 3000);
+    }
+  });
+};
+
+function run(button) {
+  var result_panel = $("section.coderunner .result-panel");
+  result_panel.empty();
+  result_panel.append($("<i></i>").addClass("fa fa-spinner fa-pulse fa-2x fa-fw"));
+  $('html, body').scrollTop( $(document).height() );
+  $(button).prop("disabled", true);
+  var slug = $(location).attr("pathname");
+  var post_data = {};
+  post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
+  post_data["code"] = $("#solution-form").find("#id_code").val()
+  post_data["testcases"] = $("#id_testcases").val();
+  $.ajax({
+    type: "get",
+    url: "/api/run" + slug,
+    data: post_data,
+    success: function(data) {
+      $("section.coderunner .result-panel").empty();
+      render_results(data);
+      $('html, body').scrollTop( $(document).height() );
+      $(button).prop("disabled", false);
+    },
+    error: function(xhr, emsgs, err) {
+      alert(emsgs);
+      alert(xhr.status + ": " + xhr.responseText);
+    }
+  });
+};
+
+function apply_ace_editor() {
+  window.ACEInstances = null;
+  var lang_mode = "ace/mode/" + $("#id_lang_mode").val();
+  var code_content = $("#id_code").val();
+  // create ace editor
+  var _editor = ace.edit("code_editor");
+  _editor.$blockScrolling = Infinity;
+  _editor.container.style.height = "300px";
+  _editor.container.style.weight = "100%";
+  _editor.resize();
+  _editor.setTheme("ace/theme/chrome");
+  _editor.setShowPrintMargin(false);
+  _editor.setFontSize(13);
+  _editor.setStyle("editor");
+
+  // setup editor session
+  _editor.getSession().setUseWorker(false);
+  _editor.getSession().setUseSoftTabs(true);
+  _editor.getSession().setValue(code_content);
+  _editor.getSession().setMode(lang_mode);
+
+  // added event listener to update code textarea
+  // pass session into the function to bind the corresponding textarea.
+  _editor.getSession().on("change", function(e, _session) {
+    var code = $("#id_code");
+    code.val(_session.getValue());
+  });
+  window.ACEInstances = _editor;
+}
+
+function update_code_mode(obj) {
+  var lang_mode = obj.value;
+  var code = window.solutions[obj.value];
+  $("#id_code").val(code);
+  var _editor = window.ACEInstances?window.ACEInstances:null;
+  if (_editor) {
+    _editor.getSession().setMode("ace/mode/" + lang_mode);
+    _editor.getSession().setValue(code);
+  }
+}
+
+function render_problem(data) {
+  var section = $("section.problem");
+  $("<h1></h1>").text(data["title"]).prependTo(section);
+  $("<div></div>").html(data["get_markdown_content"]).appendTo(section);
+  $("a.edit-button").attr("href", window.location.pathname + 'edit/');
+}
+
+function render_solution(data) {
+  $("#id_lang_mode").val(data["lang_mode"]);
+  $("#id_code").val(data["code"]);
+  apply_ace_editor();
+}
+
+function render_testcase(data) {
+  $("#id_testcases").val(data["default_testcase"]);
+}
+
+function render_results(data) {
+  var result_panel = $("section.coderunner .result-panel");
+  var result_box = $("<pre></pre>").hide();
+  $.each(data, function() {
+      result_box.append(
+          $("<span></span>").text(this)
+      );
+  });
+  result_box.appendTo(result_panel);
+  result_box.show('drop');
+}
+
+function prepare(start_codes, solutions) {
+  var lang_mode_map = {
+    "cpp": "c_cpp",
+    "java": "java",
+    "python": "python"
+  }
+
+  window.solutions = {};
+  var solution = null;
+  if (solutions) {
+    for (var i = 0; i < solutions.length; i++) {
+      var lang_mode = solutions[i]["lang_mode"];
+      var code = solutions[i]["code"];
+      window.solutions[lang_mode] = code;
+      if (!solution) {
+        solution = {
+          "lang_mode": lang_mode,
+          "code": code
         }
-        return cookieValue;
+      }
     }
-    var csrftoken = getCookie('csrftoken');
-    function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-       return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+
+  for (var lang_mode in lang_mode_map) {
+    if (lang_mode_map.hasOwnProperty(lang_mode)) {
+      if (!solutions || !window.solutions.hasOwnProperty(lang_mode)) {
+        window.solutions[lang_mode] = start_codes;
+      }
     }
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-
-    function save_solution() {
-        var solution_id = $("#id_code").attr("solution_id");
-        var url;
-        var method_type;
-        if (solution_id == "_") {
-            var slug = $(location).attr("pathname");
-            url = "/api/solution" + slug + "create/";
-            method_type = "post";
-        } else {
-            url = "/api/solution/" + solution_id + "/update/";
-            method_type = "put";
-        }
-        $.ajax({
-            type: method_type,
-            url: url,
-            data: $('#solution-form').serialize(),
-            success: function(result) {
-                var modal = $("div#msg-modal");
-                modal.find("h4").text("Success!!!");
-                var body_content = $("<p></p>").text("Your solution has been saved successfully!!");
-                modal.find(".modal-body").empty().append(body_content);
-                modal.modal('show');
-                setTimeout(function() {
-                    modal.modal('hide');
-                }, 3000);
-            },
-            error: function(xhr, emsgs, err) {
-                var modal = $("div#msg-modal");
-                modal.find("h4").text("Error!!!");
-                modal.find(".modal-body").empty()
-                     .append($("<p></p>").text("Your solution was not saved successfully!!"))
-                     .append($("<p></p>").text(xhr.status + ": " +err));
-                modal.modal('show');
-                setTimeout(function() {
-                    modal.modal('hide');
-                }, 3000);
-            }
-        });
-    };
-
-    function run(button) {
-        var result_panel = $("section.coderunner .result-panel");
-        result_panel.empty();
-        result_panel.append($("<i></i>").addClass("fa fa-spinner fa-pulse fa-2x fa-fw"));
-        $('html, body').scrollTop( $(document).height() );
-        $(button).prop("disabled", true);
-        var slug = $(location).attr("pathname");
-        var post_data = {};
-        post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
-        post_data["code"] = $("#solution-form").find("#id_code").val()
-        post_data["testcases"] = $("#id_testcases").val();
-        $.ajax({
-            type: "get",
-            url: "/api/run" + slug,
-            data: post_data,
-            success: function(data) {
-                $("section.coderunner .result-panel").empty();
-                render_results(data);
-                $('html, body').scrollTop( $(document).height() );
-                $(button).prop("disabled", false);
-            },
-            error: function(xhr, emsgs, err) {
-                alert(emsgs);
-                alert(xhr.status + ": " + xhr.responseText);
-            }
-        });
-    };
-    function apply_ace_editor() {
-        var code_content = $("#id_code").val();
-        // create ace editor
-        var _editor = ace.edit("code_editor");
-        _editor.$blockScrolling = Infinity;
-        _editor.container.style.height = "300px";
-        _editor.container.style.weight = "100%";
-        _editor.resize();
-        _editor.setTheme("ace/theme/chrome");
-        _editor.setShowPrintMargin(false);
-        _editor.setFontSize(13);
-        _editor.setStyle("editor");
-
-        // setup editor session
-        _editor.getSession().setUseWorker(false);
-        _editor.getSession().setUseSoftTabs(true);
-        _editor.getSession().setValue(code_content);
-        _editor.getSession().setMode("ace/mode/python");
-
-        // added event listener to update code textarea
-        // pass session into the function to bind the corresponding textarea.
-        _editor.getSession().on("change", function(e, _session) {{
-            var code = $("#id_code");
-            code.val(_session.getValue());
-        }});
+  }
+  if (!solution) {
+    solution = {
+      "lang_mode": "python3",
+      "code": window.solutions["python3"]
     }
-
-    function render_problem(data) {
-        var section = $("section.problem");
-        $("<h1></h1>").text(data["title"]).prependTo(section);
-        $("<div></div>").html(data["get_markdown_content"]).appendTo(section);
-        $("a.edit-button").attr("href", window.location.pathname + 'edit/');
-    }
-
-    function render_solution(data) {
-        $("#id_lang_mode").val(data["lang_mode"]);
-        $("#id_code").attr("solution_id", data["id"])
-                     .val(data["code"]);
-        apply_ace_editor();
-    }
-
-    function render_testcase(data) {
-        $("#id_testcases").val(data["default_testcase"]);
-    }
-
-    function render_results(data) {
-        var result_panel = $("section.coderunner .result-panel");
-        var result_box = $("<pre></pre>").hide();
-        $.each(data, function() {
-            result_box.append(
-                $("<span></span>").text(this)
-            );
-        });
-        result_box.appendTo(result_panel);
-        result_box.show('drop');
-    }
+  }
+  return solution;
+}
 
 function render_page() {
-    var slug = $(location).attr("pathname");
-    $.ajax({
-        type: "get",
-        url: "/api/problems" + slug,
-        success: function(data) {
-            render_problem(data)
-            solution = data["solution"];
-            if (!solution) {
-                solution = {"id": "_", "lang_mode": "python3", "code": data["solution_start_code"]}
-            }
-            render_solution(solution);
-            render_testcase(data);
-        },
-        error: function(xhr, emsgs, err) {
-            console.log(emsgs);
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
-    });
+  var slug = $(location).attr("pathname");
+  $.ajax({
+    type: "get",
+    url: "/api/problems" + slug,
+    success: function(data) {
+      render_problem(data)
+      start_codes = data["solution_start_code"];
+      solutions = data["solutions"];
+      var solution = prepare(start_codes, solutions);
+      render_solution(solution);
+      render_testcase(data);
+    },
+    error: function(xhr, emsgs, err) {
+      console.log(emsgs);
+      console.log(xhr.status + ": " + xhr.responseText);
+    }
+  });
 }
 
 {% endblock %}

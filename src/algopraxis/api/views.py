@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.generics import (
+    GenericAPIView,
     CreateAPIView,
     DestroyAPIView,
     RetrieveUpdateAPIView,
@@ -14,9 +16,10 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 
+from algopraxis.models import Problem, Solution
 from algopraxis.api.permissons import IsOwnerOrReadOnly, IsReadOnly
 from algopraxis.api.paginations import ProblemPageNumberPagination
-from algopraxis.models import Problem, Solution
+from algopraxis.api.mixins import CreateUpdateModelMixin
 from algopraxis.api.serializers import (
     ProblemListSerializer,
     ProblemDetailSerializer,
@@ -45,15 +48,26 @@ class ProblemDetailAPIView(RetrieveAPIView):
                 return solution
         return None
 
+    def get_user_solutions(self, solutions):
+        user_id = self.request.user.id
+        user_solutions = []
+        for solution in solutions:
+            if solution['user'] == user_id:
+                user_solutions.append(solution)
+        return user_solutions
+
     def customize_data(self, data):
-        solution = self.filter_solutions(data.pop('solutions'))
-        data['solution'] = solution
+        solutions = self.filter_solutions(data.pop('solutions'))
+        #user_solutions = self.get_user_solutions(data.pop('solutions'))
+        data['solutions'] = solutions
+        #data['user_solutions'] = user_solutions
         return data
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        instance.solutions = instance.solutions.filter(user_id=self.request.user.id)
         serializer = self.get_serializer(instance)
-        data = self.customize_data(serializer.data)
+        data = serializer.data
 
         return Response(data)
 
@@ -93,6 +107,23 @@ class SolutionUpdateAPIView(RetrieveUpdateAPIView):
     lookup_field = 'id'
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
+class SolutionCreateUpdateAPIView(RetrieveModelMixin ,CreateUpdateModelMixin, GenericAPIView):
+    queryset = Solution.objects.all()
+    serializer_class = SolutionSerializer
+    lookup_fields = ['lang_mode']
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        problem = get_object_or_404(Problem, slug=self.kwargs.get('slug'))
+        user = self.request.user
+        serializer.save(user=user, problem=problem)
+
+    def post(self, request, *args, **kwargs):
+        return self.create_or_update(request, *args, **kwargs)
+
 class SolutionDetailAPIView(RetrieveAPIView):
     serializer_class = SolutionSerializer
     lookup_field = 'slug'
@@ -120,5 +151,5 @@ class RunAPIView(APIView):
         sol_content = request.GET.get('code')
         input_data = request.GET.get('testcases')
         ansyc_result = run_codes.delay(main_content, sol_content, input_data)
-        outputs = ansyc_result.get()
+        outputs = ansyc_result.get(timeout=10)
         return Response(outputs)

@@ -42,9 +42,9 @@ EXTERNAL_OBJECT = (
 )
 
 LANG_MODE = (
-    ('python3', 'Python3'),
+    ('python', 'Python3'),
     ('java', 'Java'),
-    ('cpp', 'C++'),
+    ('c_cpp', 'C++'),
 )
 
 class CustomManager(models.Manager):
@@ -125,13 +125,14 @@ def pre_save_signal_receiver(sender, instance, *args, **kwargs):
 class Solution(AbstractBase):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')
-    lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python3')
+    lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python')
     code = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at', '-updated_at']
+        unique_together = (('user', 'problem', 'lang_mode'),)
+        ordering = ['-updated_at', '-created_at']
 
     def __str__(self):
         return "Problem {id}'s solution".format(id=self.problem.id)

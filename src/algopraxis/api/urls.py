@@ -12,8 +12,9 @@ urlpatterns = [
     url(r'^problems/(?P<slug>[\w-]+)/delete/$', views.ProblemDeleteAPIView.as_view(), name='delete'),
     # Solution's views
     url(r'^solution/(?P<id>\d+)/$', views.SolutionDetailAPIView.as_view(), name='solution-detail'),
-    url(r'^solution/(?P<slug>[\w-]+)/create/$', views.SolutionCreateAPIView.as_view(), name='solution-create'),
-    url(r'^solution/(?P<id>\d+)/update/$', views.SolutionUpdateAPIView.as_view(), name='solution-update'),
+    url(r'^solution/(?P<slug>[\w-]+)/create_or_update/(?P<lang_mode>[\w-]+)$', views.SolutionCreateUpdateAPIView.as_view(), name='solution-create-or-update'),
+    #url(r'^solution/(?P<slug>[\w-]+)/create/$', views.SolutionCreateAPIView.as_view(), name='solution-create'),
+    #url(r'^solution/(?P<id>\d+)/update/$', views.SolutionUpdateAPIView.as_view(), name='solution-update'),
     # CodeRunner
     url(r'^run/(?P<slug>[\w-]+)/$', views.RunAPIView.as_view(), name='run'),
 ]
