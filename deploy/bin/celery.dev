@@ -1,0 +1,12 @@
+#!/bin/bash
+
+NAME=algopraxis.joeyliu
+DEPLOYDIR=$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )")
+ROOT=$( dirname $DEPLOYDIR)
+DJANGODIR=${ROOT}/src
+DJANGO_SETTINGS_MODULE=project.settings.dev
+
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+cd ${DJANGODIR}
+exec ${DEPLOYDIR}/env/bin/celery --app=project.celery:app worker --loglevel=INFO
