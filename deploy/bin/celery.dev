@@ -1,6 +1,5 @@
 #!/bin/bash
 
-NAME=algopraxis.joeyliu
 DEPLOYDIR=$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )")
 ROOT=$( dirname $DEPLOYDIR)
 DJANGODIR=${ROOT}/src
