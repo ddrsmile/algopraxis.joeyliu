@@ -3,143 +3,143 @@
 {% block content %}
 
 <style type="text/css">
-    section {
-        width: 80%;
-        margin: auto;
-    }
-    section h1 {
-        display: inline-block;
-    }
-    .edit-button {
-        display: inline-block;
-        background-color: #A9353B;
-        color: #FFFFFF;
-        padding: 0 0.2rem;
-        font-size: 0.6rem;
-        border-radius: 3px;
-        font-weight: 600;
-        margin-left: 10px;
-    }
-    .edit-button:active,
-    .edit-button:hover,
-    .edit-button:visited,
-    .edit-button:focus {
-        color: #FFFFFF;
-        opacity: 0.75;
-    }
-    .edit-button:focus {
-        border: none;
-        outline: 0 none;
-    }
-    pre {
-        margin: auto;
-    }
-    hr.custom {
-        margin: 1rem;
-    }
-    .control-ul {
-        list-style: none;
-        padding: 0;
-    }
-    .control-ul li {
-        padding: 0;
-        margin: 0;
-    }
-    .control-ul select {
-      margin: 0;
-      text-align: center;
+  section {
+    width: 80%;
+    margin: auto;
+  }
+  section h1 {
+    display: inline-block;
+  }
+  .edit-button {
+    display: inline-block;
+    background-color: #A9353B;
+    color: #FFFFFF;
+    padding: 0 0.2rem;
+    font-size: 0.6rem;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-left: 10px;
+  }
+  .edit-button:active,
+  .edit-button:hover,
+  .edit-button:visited,
+  .edit-button:focus {
+    color: #FFFFFF;
+    opacity: 0.75;
+  }
+  .edit-button:focus {
+    border: none;
+    outline: 0 none;
+  }
+  pre {
+    margin: auto;
+  }
+  hr.custom {
+    margin: 1rem;
+  }
+  .control-ul {
+    list-style: none;
+    padding: 0;
+  }
+  .control-ul li {
+    padding: 0;
+    margin: 0;
+  }
+  .control-ul select {
+    margin: 0;
+    text-align: center;
     text-align-last: center;
-    }
-    .control-component {
-        display: inline-block;
-    }
-    .btn-custom {
-        margin: auto;
-        width: 150px;
-    }
-    .problem {
-        margin-top: 3rem
-    }
-    #id_lang_mode {
-        width: 10rem;
-    }
-    .ace_editor {
-        box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
-    }
-    .coderunner .row {
-        margin-bottom: 15px;
-    }
-    .result-panel pre span {
+  }
+  .control-component {
+    display: inline-block;
+  }
+  .btn-custom {
+    margin: auto;
+    width: 150px;
+  }
+  .problem {
+    margin-top: 3rem
+  }
+  #id_lang_mode {
+    width: 10rem;
+  }
+  .ace_editor {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+  }
+  .coderunner .row {
+    margin-bottom: 15px;
+  }
+  .result-panel pre span {
+    display: block;
+  }
+  .modal-header {
+    border: none;
+  }
+  .modal-title {
+    font-family: 'ubuntu', sans-serif;
+    color: #A9353B;
+  }
+  @media only screen
+    and (min-width: 320px)
+    and (max-width: 568px) {
+      .button-box {
+        text-align: center;
+      }
+      .button-box>.control-box {
+        float: none !important;
         display: block;
-    }
-    .modal-header {
-        border: none;
-    }
-    .modal-title {
-        font-family: 'ubuntu', sans-serif;
-        color: #A9353B;
-    }
-    @media only screen
-      and (min-width: 320px)
-      and (max-width: 568px) {
-        .button-box {
-            text-align: center;
-        }
-        .button-box>.control-box {
-            float: none !important;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .btn-custom {
-            width: 120px;
-        }
-    }
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .btn-custom {
+          width: 120px;
+      }
+  }
 </style>
 
 <section class="problem">
-    {% if request.user.is_superuser %}
-    <a class="edit-button"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> EDIT</a>
-    {% endif %}
+  {% if request.user.is_superuser %}
+  <a class="edit-button"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> EDIT</a>
+  {% endif %}
 </section>
 <hr class="custom">
 <section class="coderunner">
-    <form id="solution-form" role="form" novalidate>
-        <div class="control-panel">
-            <ul class="control-ul">
-                <li><select id="id_lang_mode" name="lang_mode" class="form-control" onchange="update_code_mode(this)">
-                    <option value="python" >Python 3</option>
-                    <option value="java" >Java</option>
-                    <option value="c_cpp" >C++</option>
-                </select></li>
-            </ul>
-        </div>
-        <div id="code_area" class="form-group">
-            <textarea id="id_code" name="code" style="display:none"></textarea>
-            <div id="code_editor"></div>
-        </div>
-    </form>
+  <form id="solution-form" role="form" novalidate>
     <div class="control-panel">
-        <div class="row">
-            <div class="col-md-8 col-sm-7">
-                <textarea name="content" cols="40" rows="5" class="form-control" id="id_testcases"></textarea>
-            </div>
-            <div class="col-md-4 col-sm-5 button-box">
-                <div class="control-box pull-right">
-                    <ul class="control-ul">
-                        <li class="control-component">
-                            <button id="run-code" class="btn btn-default btn-custom" type="button" onclick="run(this)"><i class="fa fa-play-circle-o" aria-hidden="true"></i> RUN</button>
-                        </li>
-                        <li class="control-component">
-                            <button id="save-solution" class="btn btn-default btn-custom" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()"><i class="fa fa-save" aria-hidden="true"></i> SAVE</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+      <ul class="control-ul">
+        <li><select id="id_lang_mode" name="lang_mode" class="form-control" onchange="update_code_mode(this)">
+          <option value="python" >Python 3</option>
+          <option value="java" >Java</option>
+          <option value="c_cpp" >C++</option>
+        </select></li>
+        </ul>
+    </div>
+      <div id="code_area" class="form-group">
+        <textarea id="id_code" name="code" style="display:none"></textarea>
+        <div id="code_editor"></div>
+      </div>
+  </form>
+  <div class="control-panel">
+    <div class="row">
+      <div class="col-md-8 col-sm-7">
+        <textarea name="content" cols="40" rows="5" class="form-control" id="id_testcases"></textarea>
+      </div>
+      <div class="col-md-4 col-sm-5 button-box">
+        <div class="control-box pull-right">
+          <ul class="control-ul">
+            <li class="control-component">
+              <button id="run-code" class="btn btn-default btn-custom" type="button" onclick="run(this)"><i class="fa fa-play-circle-o" aria-hidden="true"></i> RUN</button>
+            </li>
+            <li class="control-component">
+              <button id="save-solution" class="btn btn-default btn-custom" type="button" {{ request.user.is_authenticated|yesno:',disabled' }} onclick="save_solution()"><i class="fa fa-save" aria-hidden="true"></i> SAVE</button>
+            </li>
+          </ul>
         </div>
+      </div>
     </div>
-    <div class="result-panel">
-    </div>
+  </div>
+  <div class="result-panel">
+  </div>
 </section>
 <hr class="custom">
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
@@ -165,224 +165,225 @@
 <script type="text/javascript" src="{% static 'parts/ace/ace.js' %}"></script>
 {% endblock %}
 {% block extra_js %}
-function getCookie(name) {
-  var cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    var cookies = document.cookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = jQuery.trim(cookies[i]);
-      // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-var csrftoken = getCookie('csrftoken');
-function csrfSafeMethod(method) {
-// these HTTP methods do not require CSRF protection
- return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-$.ajaxSetup({
-  beforeSend: function(xhr, settings) {
-    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-      xhr.setRequestHeader("X-CSRFToken", csrftoken);
-    }
-  }
-});
-
-function save_solution() {
-  var slug = $(location).attr("pathname");
-  $.ajax({
-    type: "post",
-    url: "/api/solution" + slug + "create_or_update/" + $("#id_lang_mode").val(),
-    data: $('#solution-form').serialize(),
-    success: function(result) {
-      // update window.solutions if save is successful.
-      window.solutions[$("#id_lang_mode").val()] = $("#id_code").val();
-      var modal = $("div#msg-modal");
-      modal.find("h4").text("Success!!!");
-      var body_content = $("<p></p>").text("Your solution has been saved successfully!!");
-      modal.find(".modal-body").empty().append(body_content);
-      modal.modal('show');
-      setTimeout(function() {
-          modal.modal('hide');
-      }, 3000);
-    },
-    error: function(xhr, emsgs, err) {
-      var modal = $("div#msg-modal");
-      modal.find("h4").text("Error!!!");
-      modal.find(".modal-body").empty()
-           .append($("<p></p>").text("Your solution was not saved successfully!!"))
-           .append($("<p></p>").text(xhr.status + ": " +err));
-      modal.modal('show');
-      setTimeout(function() {
-          modal.modal('hide');
-      }, 3000);
-    }
-  });
-};
-
-function run(button) {
-  var result_panel = $("section.coderunner .result-panel");
-  result_panel.empty();
-  result_panel.append($("<i></i>").addClass("fa fa-spinner fa-pulse fa-2x fa-fw"));
-  $('html, body').scrollTop( $(document).height() );
-  $(button).prop("disabled", true);
-  var slug = $(location).attr("pathname");
-  var post_data = {};
-  post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
-  post_data["code"] = $("#solution-form").find("#id_code").val()
-  post_data["testcases"] = $("#id_testcases").val();
-  $.ajax({
-    type: "get",
-    url: "/api/run" + slug,
-    data: post_data,
-    success: function(data) {
-      $("section.coderunner .result-panel").empty();
-      render_results(data);
-      $('html, body').scrollTop( $(document).height() );
-      $(button).prop("disabled", false);
-    },
-    error: function(xhr, emsgs, err) {
-      alert(emsgs);
-      alert(xhr.status + ": " + xhr.responseText);
-    }
-  });
-};
-
-function apply_ace_editor() {
-  window.ACEInstances = null;
-  var lang_mode = "ace/mode/" + $("#id_lang_mode").val();
-  var code_content = $("#id_code").val();
-  // create ace editor
-  var _editor = ace.edit("code_editor");
-  _editor.$blockScrolling = Infinity;
-  _editor.container.style.height = "300px";
-  _editor.container.style.weight = "100%";
-  _editor.resize();
-  _editor.setTheme("ace/theme/chrome");
-  _editor.setShowPrintMargin(false);
-  _editor.setFontSize(13);
-  _editor.setStyle("editor");
-
-  // setup editor session
-  _editor.getSession().setUseWorker(false);
-  _editor.getSession().setUseSoftTabs(true);
-  _editor.getSession().setValue(code_content);
-  _editor.getSession().setMode(lang_mode);
-
-  // added event listener to update code textarea
-  // pass session into the function to bind the corresponding textarea.
-  _editor.getSession().on("change", function(e, _session) {
-    var code = $("#id_code");
-    code.val(_session.getValue());
-  });
-  window.ACEInstances = _editor;
-}
-
-function update_code_mode(obj) {
-  var lang_mode = obj.value;
-  var code = window.solutions[obj.value];
-  $("#id_code").val(code);
-  var _editor = window.ACEInstances?window.ACEInstances:null;
-  if (_editor) {
-    _editor.getSession().setMode("ace/mode/" + lang_mode);
-    _editor.getSession().setValue(code);
-  }
-}
-
-function render_problem(data) {
-  var section = $("section.problem");
-  $("<h1></h1>").text(data["title"]).prependTo(section);
-  $("<div></div>").html(data["get_markdown_content"]).appendTo(section);
-  $("a.edit-button").attr("href", window.location.pathname + 'edit/');
-}
-
-function render_solution(data) {
-  $("#id_lang_mode").val(data["lang_mode"]);
-  $("#id_code").val(data["code"]);
-  apply_ace_editor();
-}
-
-function render_testcase(data) {
-  $("#id_testcases").val(data["default_testcase"]);
-}
-
-function render_results(data) {
-  var result_panel = $("section.coderunner .result-panel");
-  var result_box = $("<pre></pre>").hide();
-  $.each(data, function() {
-      result_box.append(
-          $("<span></span>").text(this)
-      );
-  });
-  result_box.appendTo(result_panel);
-  result_box.show('drop');
-}
-
-function prepare(start_codes, solutions) {
-  var lang_mode_map = {
-    "cpp": "c_cpp",
-    "java": "java",
-    "python": "python"
-  }
-
-  window.solutions = {};
-  var solution = null;
-  if (solutions) {
-    for (var i = 0; i < solutions.length; i++) {
-      var lang_mode = solutions[i]["lang_mode"];
-      var code = solutions[i]["code"];
-      window.solutions[lang_mode] = code;
-      if (!solution) {
-        solution = {
-          "lang_mode": lang_mode,
-          "code": code
+<script type="text/javascript">
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = jQuery.trim(cookies[i]);
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
       }
     }
+    return cookieValue;
   }
 
-  for (var lang_mode in lang_mode_map) {
-    if (lang_mode_map.hasOwnProperty(lang_mode)) {
-      if (!solutions || !window.solutions.hasOwnProperty(lang_mode)) {
-        window.solutions[lang_mode] = start_codes;
+  var csrftoken = getCookie('csrftoken');
+  function csrfSafeMethod(method) {
+  // these HTTP methods do not require CSRF protection
+   return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
       }
     }
-  }
-  if (!solution) {
-    solution = {
-      "lang_mode": "python3",
-      "code": window.solutions["python3"]
-    }
-  }
-  return solution;
-}
-
-function render_page() {
-  var slug = $(location).attr("pathname");
-  $.ajax({
-    type: "get",
-    url: "/api/problems" + slug,
-    success: function(data) {
-      render_problem(data)
-      start_codes = data["solution_start_code"];
-      solutions = data["solutions"];
-      var solution = prepare(start_codes, solutions);
-      render_solution(solution);
-      render_testcase(data);
-    },
-    error: function(xhr, emsgs, err) {
-      console.log(emsgs);
-      console.log(xhr.status + ": " + xhr.responseText);
-    }
   });
-}
 
+  function save_solution() {
+    var slug = $(location).attr("pathname");
+    $.ajax({
+      type: "post",
+      url: "/api/solution" + slug + "create_or_update/" + $("#id_lang_mode").val(),
+      data: $('#solution-form').serialize(),
+      success: function(result) {
+        // update window.solutions if save is successful.
+        window.solutions[$("#id_lang_mode").val()] = $("#id_code").val();
+        var modal = $("div#msg-modal");
+        modal.find("h4").text("Success!!!");
+        var body_content = $("<p></p>").text("Your solution has been saved successfully!!");
+        modal.find(".modal-body").empty().append(body_content);
+        modal.modal('show');
+        setTimeout(function() {
+            modal.modal('hide');
+        }, 3000);
+      },
+      error: function(xhr, emsgs, err) {
+        var modal = $("div#msg-modal");
+        modal.find("h4").text("Error!!!");
+        modal.find(".modal-body").empty()
+             .append($("<p></p>").text("Your solution was not saved successfully!!"))
+             .append($("<p></p>").text(xhr.status + ": " +err));
+        modal.modal('show');
+        setTimeout(function() {
+            modal.modal('hide');
+        }, 3000);
+      }
+    });
+  };
+
+  function run(button) {
+    var result_panel = $("section.coderunner .result-panel");
+    result_panel.empty();
+    result_panel.append($("<i></i>").addClass("fa fa-spinner fa-pulse fa-2x fa-fw"));
+    $('html, body').scrollTop( $(document).height() );
+    $(button).prop("disabled", true);
+    var slug = $(location).attr("pathname");
+    var post_data = {};
+    post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
+    post_data["code"] = $("#solution-form").find("#id_code").val()
+    post_data["testcases"] = $("#id_testcases").val();
+    $.ajax({
+      type: "get",
+      url: "/api/run" + slug,
+      data: post_data,
+      success: function(data) {
+        $("section.coderunner .result-panel").empty();
+        render_results(data);
+        $('html, body').scrollTop( $(document).height() );
+        $(button).prop("disabled", false);
+      },
+      error: function(xhr, emsgs, err) {
+        alert(emsgs);
+        alert(xhr.status + ": " + xhr.responseText);
+      }
+    });
+  };
+
+  function apply_ace_editor() {
+    window.ACEInstances = null;
+    var lang_mode = "ace/mode/" + $("#id_lang_mode").val();
+    var code_content = $("#id_code").val();
+    // create ace editor
+    var _editor = ace.edit("code_editor");
+    _editor.$blockScrolling = Infinity;
+    _editor.container.style.height = "300px";
+    _editor.container.style.weight = "100%";
+    _editor.resize();
+    _editor.setTheme("ace/theme/chrome");
+    _editor.setShowPrintMargin(false);
+    _editor.setFontSize(13);
+    _editor.setStyle("editor");
+
+    // setup editor session
+    _editor.getSession().setUseWorker(false);
+    _editor.getSession().setUseSoftTabs(true);
+    _editor.getSession().setValue(code_content);
+    _editor.getSession().setMode(lang_mode);
+
+    // added event listener to update code textarea
+    // pass session into the function to bind the corresponding textarea.
+    _editor.getSession().on("change", function(e, _session) {
+      var code = $("#id_code");
+      code.val(_session.getValue());
+    });
+    window.ACEInstances = _editor;
+  }
+
+  function update_code_mode(obj) {
+    var lang_mode = obj.value;
+    var code = window.solutions[obj.value];
+    $("#id_code").val(code);
+    var _editor = window.ACEInstances?window.ACEInstances:null;
+    if (_editor) {
+      _editor.getSession().setMode("ace/mode/" + lang_mode);
+      _editor.getSession().setValue(code);
+    }
+  }
+
+  function render_problem(data) {
+    var section = $("section.problem");
+    $("<h1></h1>").text(data["title"]).prependTo(section);
+    $("<div></div>").html(data["get_markdown_content"]).appendTo(section);
+    $("a.edit-button").attr("href", window.location.pathname + 'edit/');
+  }
+
+  function render_solution(data) {
+    $("#id_lang_mode").val(data["lang_mode"]);
+    $("#id_code").val(data["code"]);
+    apply_ace_editor();
+  }
+
+  function render_testcase(data) {
+    $("#id_testcases").val(data["default_testcase"]);
+  }
+
+  function render_results(data) {
+    var result_panel = $("section.coderunner .result-panel");
+    var result_box = $("<pre></pre>").hide();
+    $.each(data, function() {
+        result_box.append(
+            $("<span></span>").text(this)
+        );
+    });
+    result_box.appendTo(result_panel);
+    result_box.show('drop');
+  }
+
+  function prepare(start_codes, solutions) {
+    var lang_mode_map = {
+      "cpp": "c_cpp",
+      "java": "java",
+      "python": "python"
+    }
+
+    window.solutions = {};
+    var solution = null;
+    if (solutions) {
+      for (var i = 0; i < solutions.length; i++) {
+        var lang_mode = solutions[i]["lang_mode"];
+        var code = solutions[i]["code"];
+        window.solutions[lang_mode] = code;
+        if (!solution) {
+          solution = {
+            "lang_mode": lang_mode,
+            "code": code
+          }
+        }
+      }
+    }
+
+    for (var lang_mode in lang_mode_map) {
+      if (lang_mode_map.hasOwnProperty(lang_mode)) {
+        if (!solutions || !window.solutions.hasOwnProperty(lang_mode)) {
+          window.solutions[lang_mode] = start_codes;
+        }
+      }
+    }
+    if (!solution) {
+      solution = {
+        "lang_mode": "python3",
+        "code": window.solutions["python3"]
+      }
+    }
+    return solution;
+  }
+
+  function render_page() {
+    var slug = $(location).attr("pathname");
+    $.ajax({
+      type: "get",
+      url: "/api/problems" + slug,
+      success: function(data) {
+        render_problem(data)
+        start_codes = data["solution_start_code"];
+        solutions = data["solutions"];
+        var solution = prepare(start_codes, solutions);
+        render_solution(solution);
+        render_testcase(data);
+      },
+      error: function(xhr, emsgs, err) {
+        console.log(emsgs);
+        console.log(xhr.status + ": " + xhr.responseText);
+      }
+    });
+  }
+</script>
 {% endblock %}
 {% block js_document_ready %}
 render_page();
