@@ -235,8 +235,8 @@
     $(button).prop("disabled", true);
     var slug = $(location).attr("pathname");
     var post_data = {};
-    post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val()
-    post_data["code"] = $("#solution-form").find("#id_code").val()
+    post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val();
+    post_data["code"] = $("#solution-form").find("#id_code").val();
     post_data["testcases"] = $("#id_testcases").val();
     $.ajax({
       type: "get",
@@ -325,7 +325,7 @@
     result_box.show('drop');
   }
 
-  function prepare(start_codes, solutions) {
+  function prepare(codesets, solutions) {
     var lang_mode_map = {
       "cpp": "c_cpp",
       "java": "java",
@@ -333,28 +333,28 @@
     }
 
     window.solutions = {};
+
     var solution = null;
-    if (solutions) {
+    if (solutions.length > 0) {
       for (var i = 0; i < solutions.length; i++) {
-        var lang_mode = solutions[i]["lang_mode"];
-        var code = solutions[i]["code"];
-        window.solutions[lang_mode] = code;
+        window.solutions[solutions[i]["lang_mode"]] = solutions[i]["code"];
         if (!solution) {
           solution = {
-            "lang_mode": lang_mode,
-            "code": code
+            "lang_mode": solutions[i]["lang_mode"],
+            "code": solutions[i]["code"]
           }
         }
       }
     }
 
-    for (var lang_mode in lang_mode_map) {
-      if (lang_mode_map.hasOwnProperty(lang_mode)) {
-        if (!solutions || !window.solutions.hasOwnProperty(lang_mode)) {
-          window.solutions[lang_mode] = start_codes;
+    if (codesets.length > 0) {
+      for (var i = 0; i < codesets.length; i++) {
+        if (solutions.length === 0 || !window.solutions.hasOwnProperty(codesets[i]["lang_mode"])) {
+          window.solutions[codesets[i]["lang_mode"]] = codesets[i]["start_code"];
         }
       }
     }
+
     if (!solution) {
       solution = {
         "lang_mode": "python3",
@@ -372,8 +372,13 @@
       success: function(data) {
         render_problem(data)
         start_codes = data["solution_start_code"];
+        codesets = data['codesets'];
+        console.log(codesets);
+        console.log(typeof codesets);
         solutions = data["solutions"];
-        var solution = prepare(start_codes, solutions);
+        console.log(solutions);
+        console.log(typeof solutions);
+        var solution = prepare(codesets, solutions);
         render_solution(solution);
         render_testcase(data);
       },
