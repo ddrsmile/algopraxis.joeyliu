@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models.query import QuerySet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.mixins import RetrieveModelMixin
@@ -16,7 +17,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 
-from algopraxis.models import Problem, Solution
+from algopraxis.models import Problem, CodeSet, Solution
 from algopraxis.api.permissons import IsOwnerOrReadOnly, IsReadOnly
 from algopraxis.api.paginations import ProblemPageNumberPagination
 from algopraxis.api.mixins import CreateUpdateModelMixin
@@ -24,10 +25,21 @@ from algopraxis.api.serializers import (
     ProblemListSerializer,
     ProblemDetailSerializer,
     ProblemCreateUpdateSerializer,
-    SolutionSerializer,
+    CodeSetSerializer,
+    SolutionDetailSerializer,
+    SolutionCreateUpdateSerializer,
 )
 
 from coderunner.tasks import run_codes
+
+# common
+class RetrieveCreateUpdateAPIView(RetrieveModelMixin ,CreateUpdateModelMixin, GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create_or_update(request, *args, **kwargs)
+
 
 # Problem
 class ProblemCreateAPIView(CreateAPIView):
@@ -90,10 +102,29 @@ class ProblemListAPIView(ListAPIView):
     permission_classes = [AllowAny]
     pagination_class = ProblemPageNumberPagination
 
+# CodeSet
+class CodeSetCreateUpdateAPIView(RetrieveCreateUpdateAPIView):
+    queryset = CodeSet.objects.all()
+    serializer_class = CodeSetSerializer
+    lookup_field = 'lang_mode'
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = self.queryset
+        if isinstance(queryset, QuerySet):
+            problem_slug = self.kwargs.get('slug', None)
+            queryset = queryset.filter(problem__slug=problem_slug).all()
+
+        return queryset
+
+    def perform_create(self, serializer):
+        problem = get_object_or_404(Problem, slug=self.kwargs.get('slug'))
+        serializer.save(problem=problem)
+
 # Solution
 class SolutionCreateAPIView(CreateAPIView):
     queryset = Solution.objects.all()
-    serializer_class = SolutionSerializer
+    serializer_class = SolutionCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
@@ -103,29 +134,33 @@ class SolutionCreateAPIView(CreateAPIView):
 
 class SolutionUpdateAPIView(RetrieveUpdateAPIView):
     queryset = Solution.objects.all()
-    serializer_class = SolutionSerializer
+    serializer_class = SolutionCreateUpdateSerializer
     lookup_field = 'id'
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
-class SolutionCreateUpdateAPIView(RetrieveModelMixin ,CreateUpdateModelMixin, GenericAPIView):
+class SolutionCreateUpdateAPIView(RetrieveCreateUpdateAPIView):
     queryset = Solution.objects.all()
-    serializer_class = SolutionSerializer
-    lookup_fields = ['lang_mode']
+    serializer_class = SolutionCreateUpdateSerializer
+    lookup_field = 'lang_mode'
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
+    def get_queryset(self):
+        queryset = self.queryset
+
+        if isinstance(queryset, QuerySet):
+            # Ensure queryset is re-evaluated on each request.
+            problem_slug = self.kwargs.get('slug', None)
+            queryset = queryset.filter(problem__slug=problem_slug).all()
+
+        return queryset
 
     def perform_create(self, serializer):
         problem = get_object_or_404(Problem, slug=self.kwargs.get('slug'))
         user = self.request.user
         serializer.save(user=user, problem=problem)
 
-    def post(self, request, *args, **kwargs):
-        return self.create_or_update(request, *args, **kwargs)
-
 class SolutionDetailAPIView(RetrieveAPIView):
-    serializer_class = SolutionSerializer
+    serializer_class = SolutionDetailSerializer
     lookup_field = 'slug'
     permission_classes = [AllowAny]
 
@@ -139,7 +174,7 @@ class SolutionDetailAPIView(RetrieveAPIView):
         user_id = self.request.user.id
         solution = problem.solutions.filter(user_id=user_id).first()
         if not solution:
-            solution = Solution(lang_mode='python3', code=problem.solution_start_code)
+            solution = Solution(lang_mode='python', code=problem.solution_start_code)
         return solution
 
 class RunAPIView(APIView):

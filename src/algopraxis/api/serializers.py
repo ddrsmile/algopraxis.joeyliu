@@ -2,7 +2,7 @@
 import json
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from algopraxis.models import Problem, Solution
+from algopraxis.models import Problem, Solution, CodeSet
 
 class TagList(list):
     def __init__(self, *args, **kwargs):
@@ -101,19 +101,37 @@ class TagSerializer(serializers.Serializer):
         return (to_be_tagged, validated_data)
 
 
-class SolutionSerializer(serializers.ModelSerializer):
+class SolutionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solution
         fields = [
             'user',
             'id',
+            'problem',
             'lang_mode',
             'code',
         ]
 
+class SolutionCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Solution
+        fields = [
+            'lang_mode',
+            'code',
+        ]
+
+class CodeSetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodeSet
+        fields = [
+            'lang_mode',
+            'main_code',
+            'start_code',
+        ]
+
 class ProblemListSerializer(TagSerializer, serializers.ModelSerializer):
     tags = TagSerializerField()
-    solutions = SolutionSerializer(many=True)
+    solutions = SolutionDetailSerializer(many=True)
     class Meta:
         model = Problem
         fields =[
@@ -128,7 +146,8 @@ class ProblemListSerializer(TagSerializer, serializers.ModelSerializer):
 
 class ProblemDetailSerializer(TagSerializer, serializers.ModelSerializer):
     tags = TagSerializerField()
-    solutions = SolutionSerializer(many=True)
+    codesets = CodeSetSerializer(many=True)
+    solutions = SolutionDetailSerializer(many=True)
     class Meta:
         model = Problem
         fields =[
@@ -136,6 +155,7 @@ class ProblemDetailSerializer(TagSerializer, serializers.ModelSerializer):
             'title',
             'slug',
             'difficulty',
+            'codesets',
             'get_markdown_content',
             'solution_start_code',
             'tags',
@@ -145,6 +165,7 @@ class ProblemDetailSerializer(TagSerializer, serializers.ModelSerializer):
 
 class ProblemCreateUpdateSerializer(TagSerializer, serializers.ModelSerializer):
     tags = TagSerializerField()
+    codesets = CodeSetSerializer(many=True)
     class Meta:
         model = Problem
         fields =[
@@ -156,4 +177,5 @@ class ProblemCreateUpdateSerializer(TagSerializer, serializers.ModelSerializer):
             'default_testcase',
             'tags',
             'get_abs_url',
+            'codesets',
         ]
