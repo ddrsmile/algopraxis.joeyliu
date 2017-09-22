@@ -386,7 +386,7 @@
           success: function (data) {
               console.log(data);
               var list = $("ul.added-list");
-              if (list.find("li[data=" + data["lang_mode"] + "]").length === 0) {
+              if (list.find("li span[data=" + data["lang_mode"] + "]").length === 0) {
                   add_to_codeset_list(data);
               }
               window.codesets[data["lang_mode"]] = {
