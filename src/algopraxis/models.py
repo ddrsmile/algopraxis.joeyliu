@@ -83,9 +83,6 @@ class Problem(AbstractBase, AbstractTimeStamp):
     difficulty = models.IntegerField(choices=DIFFICULTY, default=1)
     content = models.TextField()
     tags = TaggableManager(through=ProblemTag, blank=True)
-    # solution
-    main_file_code = models.TextField()
-    solution_start_code = models.TextField()
     # testcase
     default_testcase = models.TextField()
 
