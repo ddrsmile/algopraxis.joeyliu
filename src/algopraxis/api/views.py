@@ -182,9 +182,10 @@ class RunAPIView(APIView):
 
     def get(self, request, slug=None):
         problem = get_object_or_404(Problem, slug=slug)
-        main_content = problem.main_file_code
-        sol_content = request.GET.get('code')
-        input_data = request.GET.get('testcases')
-        ansyc_result = run_codes.delay(main_content, sol_content, input_data)
+        codeset = problem.codesets.filter(lang_mode=request.GET.get('lang_mode')).get()
+        main = codeset.main_code
+        sol = request.GET.get('code')
+        testcase = request.GET.get('testcases')
+        ansyc_result = run_codes.delay(main, sol, testcase)
         outputs = ansyc_result.get(timeout=10)
         return Response(outputs)
