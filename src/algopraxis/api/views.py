@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404
+# -*- coding: utf-8 -*-
+from django.http import Http404
 from django.db.models.query import QuerySet
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,6 +11,7 @@ from rest_framework.generics import (
     RetrieveUpdateAPIView,
     ListAPIView,
     RetrieveAPIView,
+    get_object_or_404
 )
 from rest_framework.permissions import (
     AllowAny,
@@ -31,6 +33,7 @@ from algopraxis.api.serializers import (
 )
 
 from coderunner.tasks import run_codes
+from coderunner.runner import run
 
 # common
 class RetrieveCreateUpdateAPIView(RetrieveModelMixin ,CreateUpdateModelMixin, GenericAPIView):
@@ -178,14 +181,24 @@ class SolutionDetailAPIView(RetrieveAPIView):
         return solution
 
 class RunAPIView(APIView):
-    permission_classes = [IsReadOnly]
+    permission_classes = [AllowAny]
 
-    def get(self, request, slug=None):
-        problem = get_object_or_404(Problem, slug=slug)
-        codeset = problem.codesets.filter(lang_mode=request.GET.get('lang_mode')).get()
-        main = codeset.main_code
-        sol = request.GET.get('code')
-        testcase = request.GET.get('testcases')
-        ansyc_result = run_codes.delay(main, sol, testcase)
+    def post(self, request, slug=None):
+
+        try:
+            problem = get_object_or_404(Problem, slug=slug)
+            lang_mode = request.POST.get('lang_mode')
+            sol = request.POST.get('code')
+            testcase = request.POST.get('testcases')
+            codeset = get_object_or_404(problem.codesets, lang_mode=lang_mode)
+            main = codeset.main_code
+        except Http404:
+            return Response(["The problem ro the language mode can not be found!!"])
+        except Exception as e:
+            message = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            return Response([message.format(type(e).__name__, str(e))])
+
+        ansyc_result = run_codes.delay(lang_mode, main, sol, testcase)
         outputs = ansyc_result.get(timeout=10)
+
         return Response(outputs)

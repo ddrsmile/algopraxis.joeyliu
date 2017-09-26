@@ -239,11 +239,13 @@
     post_data["code"] = $("#solution-form").find("#id_code").val();
     post_data["testcases"] = $("#id_testcases").val();
     $.ajax({
-      type: "get",
+      type: "post",
       url: "/api/run" + slug,
       data: post_data,
       success: function(data) {
         $("section.coderunner .result-panel").empty();
+        console.log(data);
+        console.log(typeof data);
         render_results(data);
         $('html, body').scrollTop( $(document).height() );
         $(button).prop("disabled", false);
@@ -373,11 +375,7 @@
         render_problem(data)
         start_codes = data["solution_start_code"];
         codesets = data['codesets'];
-        console.log(codesets);
-        console.log(typeof codesets);
         solutions = data["solutions"];
-        console.log(solutions);
-        console.log(typeof solutions);
         var solution = prepare(codesets, solutions);
         render_solution(solution);
         render_testcase(data);

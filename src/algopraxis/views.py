@@ -4,10 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.http import HttpResponseRedirect
-from django.http import JsonResponse
 from .models import Problem
-
-from coderunner.src.runner import Runner
 
 class SinginView(View):
     def get(self, request):
@@ -74,17 +71,3 @@ class ProblemDetail(View):
         context = {}
         template = 'algopraxis/problem/detail.html'
         return render(request, template, context)
-
-class RunView(View):
-    def post(self, request, slug=None, *args, **kwargs):
-        problem = get_object_or_404(Problem, slug=slug)
-        main_content = problem.main_file_code
-        sol_content = request.POST.get('code')
-        input_data = request.POST.get('testcases')
-        runner = Runner()
-        runner.set_files(main_content, sol_content, input_data)
-        outputs = runner.run()
-        to_json = {}
-        for i, output in enumerate(outputs):
-            to_json[i] = output
-        return JsonResponse(to_json)
