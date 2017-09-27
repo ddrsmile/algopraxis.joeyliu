@@ -31,9 +31,7 @@ from algopraxis.api.serializers import (
     SolutionDetailSerializer,
     SolutionCreateUpdateSerializer,
 )
-
 from coderunner.tasks import run_codes
-from coderunner.runner import run
 
 # common
 class RetrieveCreateUpdateAPIView(RetrieveModelMixin ,CreateUpdateModelMixin, GenericAPIView):
@@ -184,7 +182,6 @@ class RunAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, slug=None):
-
         try:
             problem = get_object_or_404(Problem, slug=slug)
             lang_mode = request.POST.get('lang_mode')
@@ -195,10 +192,11 @@ class RunAPIView(APIView):
         except Http404:
             return Response(["The problem ro the language mode can not be found!!"])
         except Exception as e:
-            message = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = "An exception of type {0} occurred.\n {1}"
             return Response([message.format(type(e).__name__, str(e))])
 
-        ansyc_result = run_codes.delay(lang_mode, main, sol, testcase)
-        outputs = ansyc_result.get(timeout=10)
+        result = run_codes.delay(lang_mode, main, sol, testcase)
+        outputs = result.get(timeout=5)
+        #outputs = run_codes(lang_mode, main, sol, testcase)
 
         return Response(outputs)

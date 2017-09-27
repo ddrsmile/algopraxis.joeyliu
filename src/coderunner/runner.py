@@ -1,136 +1,141 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
-import importlib
 import shutil
-from subprocess import check_call, Popen, PIPE
-from subprocess import CalledProcessError
+import subprocess
 import string, random
 from coderunner import BASE_DIR
+
 WORKPLACE = os.path.join(BASE_DIR, 'workplace')
 
-commands = {
-    'python' : [os.path.join(BASE_DIR, 'workplace/python/run.py'), '-w'],
-    'java': [],
-    'c_cpp': []
-}
+class CustomRuntimeError(Exception): pass
 
 class Runner(object):
     def __init__(self):
-        self.work_dir = self.create_tmep_work_dir()
+        self.workplace_name = self._generate_workplace_name()
+        self.workplace = None
 
-    def create_tmep_work_dir(self):
-        work_dir=''
-        while not work_dir and os.path.isdir(os.path.join(WORKPLACE, work_dir)):
-            work_dir = ''.join([random.choice(string.digits + string.ascii_letters) for _ in range(10)])
-        return work_dir
+    def _generate_workplace_name(self):
+        workplace_name=''
+        while not workplace_name and os.path.isdir(os.path.join(WORKPLACE, workplace_name)):
+            workplace_name = ''.join([random.choice(string.digits + string.ascii_letters) for _ in range(10)])
+        return workplace_name
+
+    def _rearrange_error_messages(self, estr):
+        return estr
 
     def str2list(self, strs):
-        strs = strs.split(b'\n')
-        outputs = []
-        for s in strs:
-            if s:
-                outputs.append(s.decode('utf-8'))
-        return outputs
+        return strs.decode('utf-8').strip().split('\n')
 
-    def set_files(self, *args, **kwargs):
+    def _set_files(self, main, sol, testcase):
         raise NotImplementedError()
 
-    def run(self, *args, **kwargs):
+    def perform_run(self, *args, **kwargs):
         raise NotImplementedError()
+
+    def run(self, main, sol, testcase, *args, **kwargs):
+        self._set_files(main, sol, testcase)
+
+        try:
+            return self.perform_run(*args, **kwargs)
+        except CustomRuntimeError as e:
+            massage = self._rearrange_error_messages(str(e))
+            return [massage]
+        except Exception as e:
+            message = "An exception of type {0} occurred.\n {1}"
+            return [message.format(type(e).__name__, str(e))]
+        finally:
+            if self.workplace and os.path.isdir(self.workplace):
+                shutil.rmtree(self.workplace)
 
 class PythonRunner(Runner):
     def __init__(self):
         super(PythonRunner, self).__init__()
+        self.workplace = os.path.join(WORKPLACE, 'python', self.workplace_name)
 
-    def set_files(self, main, sol, testcase):
-        work_dir = os.path.join(WORKPLACE, 'python', self.work_dir)
-        os.mkdir(work_dir)
+    def _rearrange_error_messages(self, estr):
+        lines = estr.strip().split('\n')[-3:]
+        items = []
+        items.append(lines[0].split(',')[1].strip())
+        items.append(lines[-1].strip())
+        return ", ".join(items)
 
-        open(os.path.join(work_dir, '__init__.py'), 'a').close()
+    def _set_files(self, main, sol, testcase):
+        os.mkdir(self.workplace)
+        open(os.path.join(self.workplace, '__init__.py'), 'a').close()
 
-        with open(os.path.join(work_dir, 'main.py'), 'w') as f:
+        with open(os.path.join(self.workplace, 'main.py'), 'w') as f:
             for line in main:
                 f.write(line)
 
-        with open(os.path.join(work_dir, 'sol.py'), 'w') as f:
+        with open(os.path.join(self.workplace, 'sol.py'), 'w') as f:
             for line in sol:
                 f.write(line)
 
-        with open(os.path.join(work_dir, 'input.txt'), 'w') as f:
+        with open(os.path.join(self.workplace, 'input.txt'), 'w') as f:
             for line in testcase:
                 f.write(line)
 
-    def run(self):
-        #try:
-        #    main = importlib.import_module('coderunner.workplace.python.{work_dir}.main'.format(work_dir=self.work_dir))
-        #    m = main.Main(os.path.join(WORKPLACE, 'python', self.work_dir, 'input.txt'))
-        #    output = m.main()
-        #    return output
-        #except Exception as e:
-        #    message = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        #    return [message.format(type(e).__name__, str(e))]
-        #finally:
-        #    self.unload()
-        #    shutil.rmtree(os.path.join(WORKPLACE, 'python', self.work_dir))
+    def perform_run(self):
+        cmds = [os.path.join(BASE_DIR, 'workplace/python/run.py'), '-w', self.workplace_name]
+        result = subprocess.run(cmds,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
 
-        cmds = [os.path.join(BASE_DIR, 'workplace/python/run.py'), '-w', self.work_dir]
+        if result.returncode and result.stderr:
+            raise CustomRuntimeError(str(result.stderr.decode('utf-8')))
 
-        p = Popen(cmds,  stdin =  PIPE,stdout = PIPE, stderr = PIPE )
-        stdout, stderr = p.communicate()
-        outputs = self.str2list(stdout)
-        shutil.rmtree(os.path.join(WORKPLACE, 'python', self.work_dir))
-        return outputs
+        return self.str2list(result.stdout)
 
 class JavaRunner(Runner):
     def __init__(self):
         super(JavaRunner, self).__init__()
+        self.workplace = os.path.join(WORKPLACE, 'java', self.workplace_name)
 
-    def set_files(self, main, sol, testcase):
-        work_dir = os.path.join(WORKPLACE, 'java', self.work_dir)
-        os.mkdir(work_dir)
+    def _rearrange_error_messages(self, estr):
+        lines = estr.strip().split('\n')[:4]
+        items = []
+        items.append('line ' + lines[0].split(':', 1)[1].strip())
+        items.append(lines[3].split(':')[1].strip())
+        return ', '.join(items)
 
-        with open(os.path.join(work_dir, 'Main.java'), 'w') as f:
+    def _set_files(self, main, sol, testcase):
+        os.mkdir(self.workplace)
+
+        with open(os.path.join(self.workplace, 'Main.java'), 'w') as f:
             for line in main:
                 f.write(line)
 
-        with open(os.path.join(work_dir, 'Solution.java'), 'w') as f:
-            f.write('import java.util.*;\n')
+        with open(os.path.join(self.workplace, 'Solution.java'), 'w') as f:
+            f.write('import java.util.*;')
             for line in sol:
                 f.write(line)
 
-        with open(os.path.join(work_dir, 'input.txt'), 'w') as f:
+        with open(os.path.join(self.workplace, 'input.txt'), 'w') as f:
             for line in testcase:
                 f.write(line)
 
-    def run(self):
-        work_path = os.path.join(BASE_DIR, 'workplace', 'java', self.work_dir)
-        main_path = os.path.join(work_path, 'Main.java')
-        sol_path = os.path.join(work_path, 'Solution.java')
-        input_path = os.path.join(work_path, 'input.txt')
-        class_path = ':'.join([os.path.join(BASE_DIR, 'workplace', 'java', 'bin'), work_path])
+    def perform_run(self):
+        main_path = os.path.join(self.workplace, 'Main.java')
+        sol_path = os.path.join(self.workplace, 'Solution.java')
+        input_path = os.path.join(self.workplace, 'input.txt')
+        class_path = ':'.join([os.path.join(BASE_DIR, 'workplace', 'java', 'bin'), self.workplace])
 
-        ccmds = ['javac', '-d', work_path, '-cp', class_path, main_path, sol_path]
-        rcmds = ['java', '-cp', class_path, 'Main', input_path]
+        c_cmds = ['javac', '-d', self.workplace, '-cp', class_path, main_path, sol_path]
+        r_cmds = ['java', '-cp', class_path, 'Main', input_path]
 
-        try:
-            check_call(ccmds)
-        except CalledProcessError:
-            return None
+        c_result = subprocess.run(c_cmds,
+                                  stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        if c_result.returncode and c_result.stderr:
+            raise CustomRuntimeError(str(c_result.stderr.decode('utf-8')))
 
-        p = Popen(rcmds, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate()
-        outputs = self.str2list(stdout)
-        shutil.rmtree(os.path.join(WORKPLACE, 'java', self.work_dir))
-        return outputs
+        r_result = subprocess.run(r_cmds,
+                                  stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
+        if r_result.returncode and r_result.stderr:
+            raise CustomRuntimeError(str(c_result.stderr.decode('utf-8')))
 
-def run(lang_mode, main, sol, testcase):
-    if lang_mode == 'python':
-        runner = PythonRunner()
-    elif lang_mode == 'java':
-        runner = JavaRunner()
-    else:
-        return ["unknow language mode!!"]
-    runner.set_files(main, sol, testcase)
-    outputs = runner.run()
-    return outputs
+        return self.str2list(r_result.stdout)
