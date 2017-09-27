@@ -13,5 +13,4 @@ urlpatterns = [
     url(r'^create/$', views.ProblemCreateView.as_view(), name='create'),
     url(r'^(?P<slug>[\w-]+)/$', views.ProblemDetail.as_view(), name='detail'),
     url(r'^(?P<slug>[\w-]+)/edit/$', views.ProblemEditView.as_view(), name='edit'),
-    url(r'^(?P<slug>[\w-]+)/run/$', views.RunView.as_view(), name='run'),
 ]

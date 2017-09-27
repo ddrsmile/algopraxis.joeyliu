@@ -28,6 +28,8 @@
                 -ms-text-size-adjust: 100%;
                 -webkit-text-size-adjust: 100%;
                 font-size: 20px;
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
                 box-sizing: border-box;
             }
             *, *:before, *:after {
@@ -232,7 +234,7 @@
         <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
         <script async type="text/javascript" src="{% static 'js/project.js' %}"></script>
         {% block extra_import_js %}{% endblock %}
-        <script>
+        <script type="text/javascript">
             function sidebar_func() {
                 var trigger = $('.hamburger'),
                   overlay = $('.overlay'),
@@ -261,7 +263,9 @@
                     $('#wrapper').toggleClass('toggled');
                 });
             }
-            {% block extra_js %}{% endblock %}
+        </script>
+        {% block extra_js %}{% endblock %}
+        <script type="text/javascript">
             $( function() {
                 $(document).ready(function(){
 

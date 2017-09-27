@@ -12,8 +12,6 @@ class ProblemForm(forms.ModelForm):
             'title',
             'difficulty',
             'content',
-            'main_file_code',
-            'solution_start_code',
             'default_testcase',
             'tags',
         ]

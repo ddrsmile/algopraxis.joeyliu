@@ -42,9 +42,9 @@ EXTERNAL_OBJECT = (
 )
 
 LANG_MODE = (
-    ('python3', 'Python3'),
+    ('python', 'Python3'),
     ('java', 'Java'),
-    ('cpp', 'C++'),
+    ('c_cpp', 'C++'),
 )
 
 class CustomManager(models.Manager):
@@ -63,21 +63,26 @@ class AbstractBase(models.Model):
     class Meta:
         abstract = True
 
+class AbstractTimeStamp(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __init__(self, *args, **kwargs):
+        super(AbstractTimeStamp, self).__init__(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
 class ProblemTag(TaggedItemBase):
     content_object = models.ForeignKey('Problem')
 
-class Problem(AbstractBase):
+class Problem(AbstractBase, AbstractTimeStamp):
     # basic information
     title = models.CharField(max_length=255, blank=False, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(db_index=True, unique=True)
     difficulty = models.IntegerField(choices=DIFFICULTY, default=1)
     content = models.TextField()
     tags = TaggableManager(through=ProblemTag, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    # solution
-    main_file_code = models.TextField()
-    solution_start_code = models.TextField()
     # testcase
     default_testcase = models.TextField()
 
@@ -122,16 +127,25 @@ def pre_save_signal_receiver(sender, instance, *args, **kwargs):
     if not instance.slug:
         instance.slug = create_slug(instance)
 
-class Solution(AbstractBase):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
-    problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')
-    lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python3')
-    code = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class CodeSet(AbstractBase, AbstractTimeStamp):
+    problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='codesets')
+    lang_mode = models.CharField(max_length=20, choices=LANG_MODE)
+    main_code = models.TextField()
+    start_code = models.TextField()
 
     class Meta:
-        ordering = ['-created_at', '-updated_at']
+        unique_together = (('problem', 'lang_mode'),)
+        ordering = ['-updated_at', '-created_at']
+
+class Solution(AbstractBase, AbstractTimeStamp):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
+    problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')
+    lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python')
+    code = models.TextField()
+
+    class Meta:
+        unique_together = (('user', 'problem', 'lang_mode'),)
+        ordering = ['-updated_at', '-created_at']
 
     def __str__(self):
         return "Problem {id}'s solution".format(id=self.problem.id)

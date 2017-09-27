@@ -122,33 +122,34 @@
     }
 </style>
 <section class="main-content">
-    <article class="list-container">
-        <table class="list-table">
-            <thead class="list-table-head">
-                <tr>
-                    <th></th>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Difficulty</th>
-                </tr>
-            </thead>
-            <tbody class="list-table-body">
-            </tbody>
-        </table>
-        <div class="pagination-box">
-            <div class="pagination-wrap">
-                <ul class="pagination">
-                </ul>
-            </div>
-        </div>
-    </article>
+  <article class="list-container">
+    <table class="list-table">
+      <thead class="list-table-head">
+        <tr>
+          <th></th>
+          <th>#</th>
+          <th>Title</th>
+          <th>Difficulty</th>
+        </tr>
+      </thead>
+      <tbody class="list-table-body">
+      </tbody>
+    </table>
+    <div class="pagination-box">
+      <div class="pagination-wrap">
+        <ul class="pagination">
+        </ul>
+      </div>
+    </div>
+  </article>
 </section>
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
 {% endblock %}
 {% block extra_js %}
-difficulty = {1: "EASY", 2:"MEDIUM", 3:"HARD"};
+<script type="text/javascript">
+  difficulty = {1: "EASY", 2:"MEDIUM", 3:"HARD"};
 
-function build_problem_list_item(problem) {
+  function build_problem_list_item(problem) {
     var item = $("<tr></tr>");
     var mark = problem.has_solution > 0?$("<td><i class='fa fa-check' aria-hidden='true'></i></td>"):$("<td></td>");
     item.append(mark);
@@ -158,93 +159,93 @@ function build_problem_list_item(problem) {
     item.append($("<td></td>").append(link));
     item.append($("<td></td>").append($("<span class='label difficulty'></span>").text(difficulty[problem.difficulty])));
     return item;
-}
+  }
 
-function build_problem_list(problems) {
+  function build_problem_list(problems) {
     var table = $("table.list-table");
     var container = table.find("tbody");
     $.each(problems, function(index) {
-        var item = build_problem_list_item(this);
-        container.append(item);
+      var item = build_problem_list_item(this);
+      container.append(item);
     });
-}
+  }
 
-function build_pagination_item(kwargs=null) {
+  function build_pagination_item(kwargs=null) {
     var item = $("<li></li>");
     var item_content = $("<span></span>");
     if (kwargs["previous"] || kwargs["next"]) {
-        if (!kwargs["page_number"]) {
-            item.attr("class", "disabled");
-        } else {
-            item_content.attr("class", "page_link");
-        }
-        item_content.attr("page_number", kwargs["page_number"])
-                    .append(
-                        $("<i></i>")
-                        .attr("class", kwargs["i_class"])
-                        .attr("aria-hidden", "true")
-                    );
+      if (!kwargs["page_number"]) {
+          item.attr("class", "disabled");
+      } else {
+        item_content.attr("class", "page_link");
+      }
+      item_content.attr("page_number", kwargs["page_number"])
+                  .append(
+                    $("<i></i>")
+                    .attr("class", kwargs["i_class"])
+                    .attr("aria-hidden", "true")
+                  );
     } else if (kwargs["page_range"]) {
-        if (kwargs["is_current_page"]) {
-            item.attr("class", "active");
-        } else {
-            item_content.attr("class", "page_link");
-        }
-        item_content.attr("page_number", kwargs["page_number"])
-                    .text(kwargs["page_number"]);
+      if (kwargs["is_current_page"]) {
+        item.attr("class", "active");
+      } else {
+        item_content.attr("class", "page_link");
+      }
+      item_content.attr("page_number", kwargs["page_number"])
+                  .text(kwargs["page_number"]);
     }
     item.append(item_content);
     return item;
-}
+  }
 
-function build_pagination(results) {
+  function build_pagination(results) {
     var pagination = $(".pagination");
     item = build_pagination_item(kwargs={"previous": true,
-                                         "i_class": "fa fa-angle-double-left",
-                                         "page_number": results["previous_page_num"]});
+        "i_class": "fa fa-angle-double-left",
+        "page_number": results["previous_page_num"]});
     pagination.append(item);
     var page_range = results["page_range"];
 
 
     for (var i = 0; i < page_range.length; i++) {
-        item = build_pagination_item(kwargs={"page_range": true,
-                                             "is_current_page": results["current_page"] == page_range[i],
-                                             "page_number": page_range[i]});
-        pagination.append(item);
+      item = build_pagination_item(kwargs={"page_range": true,
+                                           "is_current_page": results["current_page"] == page_range[i],
+                                           "page_number": page_range[i]});
+      pagination.append(item);
     }
     item = build_pagination_item(kwargs={"next":true,
                                          "i_class": "fa fa-angle-double-right",
                                          "page_number": results["next_page_num"]});
     pagination.append(item);
-}
+  }
 
-function clear_content() {
+  function clear_content() {
     $(".pagination").empty();
     $("table.list-table").find("tbody").empty();
-}
+  }
 
-function change_page() {
+  function change_page() {
     $(".pagination").on("click", "li>span.page_link", function() {
-        clear_content();
-        render_page(page=$(this).attr("page_number"));
+      clear_content();
+      render_page(page=$(this).attr("page_number"));
     });
-}
+  }
 
-function render_page(page='') {
+  function render_page(page='') {
     $.ajax({
-        type: "get",
-        url: "{% url 'algopraxis:api:list' %}" + (page? "?page=" + page:''),
-        success: function(data) {
-            build_problem_list(data["results"]);
-            build_pagination(data);
-        },
-        error: function(xhr, emsgs, err) {
-            console.log(emsgs);
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
+      type: "get",
+      url: "{% url 'algopraxis:api:list' %}" + (page? "?page=" + page:''),
+      success: function(data) {
+        build_problem_list(data["results"]);
+        build_pagination(data);
+      },
+      error: function(xhr, emsgs, err) {
+        console.log(emsgs);
+        console.log(xhr.status + ": " + xhr.responseText);
+      }
     });
-}
-
+  }
+</script>
 {% endblock %}
 {% block js_document_ready %}
 render_page();

@@ -3,114 +3,188 @@
 
 {% block content %}
 <style type="text/css">
-    section {
-        width: 80%;
-        margin: auto;
-    }
-    section.create-update {
-        margin-top: 3rem;
-    }
-    #problem-form {
-        margin: 2rem auto;
-    }
-    pre {
-        margin: auto;
-    }
-    hr.custom {
-        margin: 1rem;
-    }
-    .control-ul {
-        list-style-type: none;
-        padding: 0;
-    }
-    .control-component {
-        display: inline-block;
-    }
-    .problem {
-        margin-top: 1rem
-    }
-    section .btn {
-        width: 100px;
-    }
-    .modal-footer .btn+.btn {
-        margin-left: 5px;
-        margin-bottom: 0;
-    }
-    .modal-header {
-        border: none;
-    }
-    .modal-footer {
-        border: none;
-    }
-    .modal-footer .btn {
-        width: 72px;
-    }
-    .modal-footer .btn-primary {
-        color: #FFF !important;
-    }
-    .modal-title {
-        font-family: 'ubuntu', sans-serif;
-        color: #A9353B;
-    }
+  .wrap-page-title {
+    margin-top: 3rem;
+    display: block;
+    width: 100%;
+    padding: 0 10%;
+  }
+  section {
+    width: 80%;
+    margin: auto;
+  }
+  section {
+    margin-top: 2rem;
+  }
+  form {
+    padding: 1rem 3rem;
+    box-shadow:2px 4px 8px 0 rgba(46,61,73,0.2);
+  }
+  pre {
+    margin: auto;
+  }
+  hr.custom {
+    margin: 1rem;
+  }
+  .control-ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  .control-component {
+    display: inline-block;
+  }
+  .problem {
+    margin-top: 1rem
+  }
+  section .btn {
+    width: 100px;
+  }
+  .modal-footer .btn+.btn {
+    margin-left: 5px;
+    margin-bottom: 0;
+  }
+  .modal-header {
+    border: none;
+  }
+  .modal-footer {
+    border: none;
+  }
+  .modal-footer .btn {
+    width: 72px;
+  }
+  .modal-footer .btn-primary {
+    color: #FFF !important;
+  }
+  .modal-title {
+    font-family: 'ubuntu', sans-serif;
+    color: #A9353B;
+  }
+  .codeset-header {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-justify-content: space-between;
+    justify-content:space-between;
+    -webkit-align-items: center;
+    align-items:center;
+    margin-bottom: 1rem;
+  }
+  .codeset-header h2 {
+    display: block;
+    padding: 0;
+    margin: 0;
+  }
+  .codeset-form + .codeset-form {
+    margin-top: 3rem;
+  }
+  .added-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .edit-button {
+    display: inline-block;
+    background-color: #A9353B;
+    color: #FFFFFF;
+    padding: 0 0.2rem;
+    font-size: 0.6rem;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  .edit-button:active,
+  .edit-button:hover,
+  .edit-button:visited,
+  .edit-button:focus {
+    color: #FFFFFF;
+    opacity: 0.75;
+  }
+  .edit-button:focus {
+    border: none;
+    outline: 0 none;
+  }
+
 </style>
-<section class="create-update clearfix">
-    <hr class="custom">
-    <form id="create-update-form" class="form-horizontal" role="form" novalidate>
-        <div class="form-group has-feedback">
-            <label class="col-sm-2 control-label" for="title">Title</label>
-            <div class="col-sm-10">
-                <input type="text" id="title" name="title" class="form-control" required>
-            </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="col-sm-2 control-label" for="difficulty">Difficulty</label>
-            <div class="col-sm-10">
-                <select id="difficulty" name="difficulty" class="form-control" required>
-                    <option value="1">Easy</option>
-                    <option value="2">Medium</option>
-                    <option value="3">Hard</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="col-sm-2 control-label" for="content">Content</label>
-            <div class="col-sm-10">
-                <textarea rows=10 id="content" name="content" class="form-control" required></textarea>
-            </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="col-sm-2 control-label" for="main_file_code">Main Codes</label>
-            <div class="col-sm-10">
-                <textarea rows=10 id="main_file_code" name="main_file_code" class="form-control" required></textarea>
-                <div id="main_codes_editor"></div>
-            </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="col-sm-2 control-label" for="solution_start_code">Solution Start Codes</label>
-            <div class="col-sm-10">
-                <textarea rows=10 id="solution_start_code" name="solution_start_code" class="form-control" required></textarea>
-                <div id="solution_start_code_editor"></div>
-            </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="col-sm-2 control-label" for="default_testcase">Default Testcase</label>
-            <div class="col-sm-10">
-                <textarea rows=5 id="default_testcase" name="default_testcase" class="form-control" required></textarea>
-            </div>
-        </div>
-        <div class="form-group has-feedback">
-            <label class="col-sm-2 control-label" for="tags">Tags</label>
-            <div class="col-sm-10">
-                <input type="text" id="tags" name="tags" class="form-control" required>
-            </div>
-        </div>
-    </form>
-    <div class="control-panel pull-right">
-        <ul class="control-ul">
-            <li class="control-component"><button id="create-update-button" type="button" class="btn btn-default action-button" onclick="create_or_update(this)"></button></li>
-            <li class="control-component hidden"><button id="delete-button" type="button" class="btn btn-primary action-button" onclick="delete_problem(this)"></button></li>
-        </ul>
+<div class="wrap-page-title">
+  <h1 class="page-title"></h1>
+</div>
+<hr class="custom">
+<section class="problem create-update">
+  <form id="create-update-form" class="form-horizontal clearfix" role="form" novalidate>
+    <div class="form-group has-feedback">
+      <label class="col-sm-2 control-label" for="title">Title</label>
+      <div class="col-sm-10">
+        <input type="text" id="title" name="title" class="form-control" required>
+      </div>
     </div>
+      <div class="form-group has-feedback">
+        <label class="col-sm-2 control-label" for="difficulty">Difficulty</label>
+        <div class="col-sm-10">
+          <select id="difficulty" name="difficulty" class="form-control" required>
+            <option value="1">Easy</option>
+            <option value="2">Medium</option>
+            <option value="3">Hard</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group has-feedback">
+        <label class="col-sm-2 control-label" for="content">Content</label>
+        <div class="col-sm-10">
+          <textarea rows=10 id="content" name="content" class="form-control" required></textarea>
+        </div>
+      </div>
+      <!--
+      <div class="form-group has-feedback">
+        <label class="col-sm-2 control-label" for="main_file_code">Main Codes</label>
+        <div class="col-sm-10">
+          <textarea rows=10 id="main_file_code" name="main_file_code" class="form-control" required></textarea>
+          <div id="main_codes_editor"></div>
+        </div>
+      </div>
+      <div class="form-group has-feedback">
+        <label class="col-sm-2 control-label" for="solution_start_code">Solution Start Codes</label>
+        <div class="col-sm-10">
+          <textarea rows=10 id="solution_start_code" name="solution_start_code" class="form-control" required></textarea>
+          <div id="solution_start_code_editor"></div>
+        </div>
+      </div>
+      -->
+      <div class="form-group has-feedback">
+        <label class="col-sm-2 control-label" for="default_testcase">Default Testcase</label>
+        <div class="col-sm-10">
+          <textarea rows=5 id="default_testcase" name="default_testcase" class="form-control" required></textarea>
+        </div>
+      </div>
+      <div class="form-group has-feedback">
+        <label class="col-sm-2 control-label" for="tags">Tags</label>
+        <div class="col-sm-10">
+          <input type="text" id="tags" name="tags" class="form-control" required>
+        </div>
+      </div>
+    <div class="control-panel pull-right">
+    <ul class="control-ul">
+      <li class="control-component"><button id="create-update-button" type="button" class="btn btn-default action-button" onclick="create_or_update(this)"></button></li>
+      <li class="control-component hidden"><button id="delete-button" type="button" class="btn btn-primary action-button" onclick="delete_problem(this)"></button></li>
+    </ul>
+  </div>
+  </form>
+</section>
+<section class="codeset create-update">
+  <div class="codeset-header">
+    <h2>Code Set</h2>
+    <div class="control-panel">
+      <button id="add-codeset-button" type="button" class="btn btn-default action-button" onclick="add_codeset()">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+  <div class="list-wrap">
+    <ul class="added-list"></ul>
+  </div>
+
 </section>
 <hr class="custom">
 <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css' %}">
@@ -132,273 +206,423 @@
     </div>
   </div>
 </div>
+<form id="codeset-template" class="codeset-form clearfix hidden" role="form" novalidate>
+  <div class="control-panel">
+    <ul class="control-ul">
+      <li>
+        <select name="lang_mode" class="form-control" onchange="update_code_mode(this)">
+          <option value="python" >Python 3</option>
+          <option value="java" >Java</option>
+          <option value="c_cpp" >C++</option>
+        </select>
+      </li>
+      </ul>
+  </div>
+  <div class="form-group has-feedback">
+    <label class="control-label" >Main Code</label>
+    <textarea id="id_main_code_" name="main_code" rows=10 class="form-control hidden" required></textarea>
+    <div></div>
+  </div>
+  <div class="form-group has-feedback">
+    <label class="control-label" >Start Code</label>
+    <textarea id="id_start_code_" name="start_code" rows=10 class="form-control hidden" required></textarea>
+    <div></div>
+  </div>
+  <div class="control-panel pull-right">
+      <ul class="control-ul">
+        <li class="control-component">
+          <button type="button" class="btn btn-default action-button" onclick="create_or_update_codeset(this)">
+            <i class="fa fa-save" aria-hidden="true"></i> SAVE
+          </button>
+        </li>
+        <li class="control-component">
+          <button type="button" class="btn btn-default action-button" onclick="cancel_codeset(this)">
+            <i class="fa fa-times" aria-hidden="true"></i> CANCEL
+          </button>
+        </li>
+        <li class="control-component">
+          <button type="button" class="btn btn-primary action-button hidden" onclick="delete_codeset(this)">
+            <i class="fa fa-trash-o" aria-hidden="true"></i> DELETE
+          </button>
+        </li>
+      </ul>
+    </div>
+</form>
 {% endblock %}
 
 {% block extra_js %}
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
+<script type="text/javascript">
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = jQuery.trim(cookies[i]);
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
-        return cookieValue;
+      }
     }
-    var csrftoken = getCookie('csrftoken');
-    function csrfSafeMethod(method) {
+    return cookieValue;
+  }
+  var csrftoken = getCookie('csrftoken');
+  function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
-       return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
     }
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
+  });
+
+  function fill_form(action=null, slug=null, data=null) {
+    var form = $("#create-update-form");
+    $(".action-button").attr("action", action).attr("slug", slug);
+
+    if (data !== null) {
+      for (var key in data) {
+        if (key === "get_abs_url") continue;
+        if (data.hasOwnProperty(key)) {
+          if (key === "tags") {
+              $("#" + key).val(data[key].join(", "));
+          } else {
+              $("#" + key).val(data[key]);
+          }
+        }
+      }
+    }
+
+    $("#main_file_code").hide();
+    var target =$("#main_file_code").parent();
+    //apply_ace_editor(target);
+
+    $("#solution_start_code").hide();
+    var target = $("#solution_start_code").parent();
+    //apply_ace_editor(target);
+    apply_simple_editor();
+    if (action === "create") {
+      $("#create-update-button").append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
+    } else {
+      $("#create-update-button").append('<i class="fa fa-save" aria-hidden="true"></i> SAVE');
+      $("#delete-button").parents("li").removeClass("hidden")
+      $("#delete-button").append('<i class="fa fa-trash-o" aria-hidden="true"></i> DELETE');
+
+    }
+  }
+
+  function render_code_area(codeset_num, target) {
+      target.attr("id", target.attr("id") + codeset_num);
+      var label = target.prev();
+      label.attr("for", target.attr("id"));
+      var editor = target.next();
+      editor.attr("id", target.attr("id") + "_editor");
+      apply_ace_editor(target);
+  }
+
+  function add_codeset(codeset) {
+      var codeset_section = $("section.codeset");
+      var codeset_num = codeset_section.find("form.codeset-form").length + 1;
+      var form = $("form#codeset-template").clone().removeClass("hidden").attr("id", "codeset-form-" + codeset_num);
+      if (codeset) {
+          var option = $("<option></option>").attr("value", codeset["lang_mode"]).text(codeset["verbose_name"]);
+          option.appendTo(form.find("select"));
+          form.find("select").val(codeset["lang_mode"]);
+          form.find("#id_main_code_").val(codeset["main_code"]);
+          form.find("#id_start_code_").val(codeset["start_code"]);
+      }
+      form.appendTo(codeset_section);
+      render_code_area(codeset_num, form.find("#id_main_code_"));
+      render_code_area(codeset_num, form.find("#id_start_code_"));
+  }
+
+  function add_to_codeset_list(codeset) {
+      var list = $("ul.added-list");
+      var option = $("#codeset-template").find("option[value=" + codeset["lang_mode"] + "]");
+      var edit_button = $("<span class='edit-button'></span>")
+                    .append("<i class='fa fa-pencil-square-o' aria-hidden='true'></i> EDIT")
+                    .attr("data", option.val())
+                    .attr("onclick", "edit_codeset(this)");
+      $("<li></li>").text(option.text())
+                  .append(edit_button)
+                  .appendTo(list);
+      window.codesets[codeset["lang_mode"]]["verbose_name"] = option.text();
+      option.remove();
+  }
+
+  function edit_codeset(button) {
+      var lang_mode = $(button).attr("data");
+      var codeset = window.codesets[lang_mode];
+      $(button).css("pointer-events", "none");
+      add_codeset(codeset);
+  }
+
+  function render_added_codeset(codesets) {
+      window.codesets = {};
+      if (codesets.length > 0) {
+          for (var i = 0; i < codesets.length; i++) {
+              window.codesets[codesets[i]["lang_mode"]] = codesets[i];
+              add_to_codeset_list(codesets[i]);
+          }
+          if (codesets.length === 3) {
+              $("#add-codeset-button").attr("disabled", true);
+          }
+      }
+  }
+
+  function create_or_update_codeset(button) {
+      var slug = $(button).attr("slug");
+      var form = $(button).parents("form");
+      var lang_mode = form.find("select").val();
+
+      $.ajax({
+          type: "post",
+          url: "/api/codeset/" + slug + "/create_or_update/" + lang_mode,
+          data: form.serialize(),
+          success: function (data) {
+              console.log(data);
+              var list = $("ul.added-list");
+              if (list.find("li span[data=" + data["lang_mode"] + "]").length === 0) {
+                  add_to_codeset_list(data);
+              }
+              window.codesets[data["lang_mode"]] = {
+                  "main_code": data["main_code"],
+                  "start_code": data["start_code"]
+              };
+              edit_button.css("pointer-events", "auto");
+              form.remove();
+          },
+          error: function () {
+              $('<h2>Error!!</h2>').prependTo(form);
+          }
+      });
+  }
+
+  function cancel_codeset(button) {
+      var lang_mode = $(button).parents("form").find("select").val();
+      var edit_button = $("span.edit-button[data=" + lang_mode + "]");
+      edit_button.css("pointer-events", "auto");
+      $(button).parents("form").remove();
+
+  }
+
+  function delete_codeset() {}
+
+  function apply_simple_editor() {
+    new SimpleMDE({
+      element: document.getElementById("content"),
+      forceSync: true,
+      spellChecker: false,
+      previewRender: latex_support
+    })
+  }
+
+  function apply_ace_editor(target) {
+    if (!window.ACEInstances) {
+        window.ACEInstances = {};
+    }
+    var codeset_id = target.attr("id");
+    var code_content = target.val();
+    // create ace editor
+    var _editor = ace.edit(target.next().attr("id"));
+    _editor.$blockScrolling = Infinity;
+    _editor.container.style.height = "300px";
+    _editor.container.style.weight = "100%";
+    _editor.resize();
+    _editor.setTheme("ace/theme/chrome");
+    _editor.setShowPrintMargin(false);
+    _editor.setFontSize(13);
+    _editor.setStyle("editor");
+
+    // setup editor session
+    _editor.getSession().setUseWorker(false);
+    _editor.getSession().setUseSoftTabs(true);
+    _editor.getSession().setValue(code_content);
+    _editor.getSession().setMode("ace/mode/python");
+
+    // added event listener to update code textarea
+    // pass session into the function to bind the corresponding textarea.
+    _editor.getSession().on("change", function(e, _session) {
+        target.val(_session.getValue());
+    });
+    window.ACEInstances[codeset_id] = _editor;
+  }
+
+  function render_page() {
+    var path_list = $(location).attr("pathname").match(/[^\/]+/g);
+
+    if (path_list.length === 1) {
+      var action = path_list[0];
+    } else {
+      var slug = path_list[0];
+      var action = path_list[1];
+    }
+
+    var section = $("section.problem");
+    if (action === "create") {
+      $("h1.page-title").text("Create Problem");
+      fill_form(action=action, slug=null, data=null);
+    } else {
+      $.ajax({
+        type: "get",
+        url: "/api/problems/" + slug + "/update/",
+        success: function(data) {
+          $("h1.page-title").text("Update Problem - " + data["title"]);
+          fill_form(action=action, slug=slug, data=data);
+          var codesets = data["codesets"];
+          render_added_codeset(codesets);
+        },
+        error: function(xhr, emsgs, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+        }
+      });
+    }
+
+  }
+
+  function render_modal(title="", messages=[], action=null, url=null) {
+    var modal = $("div#msg-modal");
+    var modal_body = modal.find(".modal-body");
+    var modal_footer = modal.find(".modal-footer");
+    // clear
+    modal_body.empty();
+    modal_footer.remove();
+
+    // set title
+    modal.find("h4").text(title);
+
+    if (action === "create" || action === "edit" || action === "delete" ) {
+      for (var i = 0; i < messages.length; i++) {
+        var message = $("<p></p>").text(messages[i]);
+        modal_body.append(message);
+      }
+    } else if (action === "error") {
+      for (var key in messages) {
+        var message_title = $("label[for=" +  key  + "]").text();
+        console.log(message_title);
+        if (message_title) {
+          modal_body.append($("<h5></h5>").text(message_title));
+          modal_body.find("h5").css({"color": "#A9353B"});
+
+          for (var i = 0; i < messages[key].length; i++) {
+            var message = $("<p></p>").text(messages[key][i]);
+            modal_body.append(message);
+          }
+        } else {
+          modal_body.append(messages[key]);
+        }
+      }
+    }
+
+    if (action === "edit") {
+      var modal_footer = $("<div></div>").addClass("modal-footer");
+      var stay_button = $("<button></button>").addClass("btn btn-default")
+                                              .attr("data-dismiss", "modal")
+                                              .text("STAY");
+      var leave_button = $("<a></a>").addClass("btn btn-primary")
+                                     .attr("href", url)
+                                     .text("LEAVE");
+      modal_footer.append(stay_button).append(leave_button);
+      modal.find(".modal-content").append(modal_footer);
+    }
+    modal.modal('show');
+  }
+
+  function parse_error_messages(messages) {
+    var messages
+  }
+
+  function parse_tags_to_json(value) {
+    if (value === "") {
+      return value;
+    }
+    var items = value.match(/[^,]+/g);
+
+    for (var i = 0; i < items.length; i++) {
+      items[i] = items[i].trim();
+    }
+    return JSON.stringify(items);
+  }
+
+  function parse_tags_to_list(value) {
+    if (value === "") {
+      return value;
+    }
+    value = value.replace(/\[|\]|\"/g,'');
+    var items = value.match(/[^,]+/g);
+    for (var i = 0; i < items.length; i++) {
+      items[i] = items[i].trim();
+    }
+    return items.join(", ");
+  }
+
+  function create_or_update(button) {
+    var action = $(button).attr("action");
+    var slug = $(button).attr("slug");
+    $("#tags").val(parse_tags_to_json($("#tags").val()));
+    var data = $("#create-update-form").serialize();
+    $("#tags").val(parse_tags_to_list($("#tags").val()));
+    console.log(data);
+    if (action === "create") {
+      var url = "/api/problems/create/";
+      var type = "post";
+    } else if (action === "edit") {
+      var url = "/api/problems/" + slug + "/update/";
+      var type = "put";
+    } else {
+      alert("unknown action");
+      return false;
+    }
+
+    $.ajax({
+      type: type,
+      url: url,
+      data: data,
+      success: function(data) {
+        var message = "The problem has been {action} successfully!!"
+        message = message.replace("{action}", (action === "create"?"created":"updated"));
+        var url = data["get_abs_url"];
+        render_modal("Success!!!", [message], action, url);
+        if (action === "create") {
+            setTimeout(function() {
+              window.location.href = url;
+            }, 2000);
+          }
+        },
+        error: function(xhr, emsgs, err) {
+          var messages = JSON.parse(xhr.responseText);
+          console.log(messages);
+          render_modal("Error!!", messages, "error", null);
         }
     });
-    function fill_form(action=null, slug=null, data=null) {
-        var form = $("#create-update-form");
-        $(".action-button").attr("action", action).attr("slug", slug);
+  }
 
-        if (data !== null) {
-            for (var key in data) {
-                if (key === "get_abs_url") continue;
-                if (data.hasOwnProperty(key)) {
-                    if (key === "tags") {
-                        $("#" + key).val(data[key].join(", "));
-                    } else {
-                        $("#" + key).val(data[key]);
-                    }
-                }
-            }
-        }
-
-        $("#main_file_code").hide();
-        var target =$("#main_file_code").parent();
-        apply_ace_editor(target);
-
-        $("#solution_start_code").hide();
-        var target = $("#solution_start_code").parent();
-        apply_ace_editor(target);
-        apply_simple_editor();
-        if (action === "create") {
-            $("#create-update-button").append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
-        } else {
-            $("#create-update-button").append('<i class="fa fa-save" aria-hidden="true"></i> SAVE');
-            $("#delete-button").parents("li").removeClass("hidden")
-            $("#delete-button").append('<i class="fa fa-trash-o" aria-hidden="true"></i> DELETE');
-
-        }
-    }
-
-    function apply_simple_editor() {
-        new SimpleMDE({
-            element: document.getElementById("content"),
-            forceSync: true,
-            spellChecker: false,
-             previewRender: latex_support
-        })
-    }
-    function apply_ace_editor(target) {
-        var code_content = target.find("textarea").val();
-        // create ace editor
-        var _editor = ace.edit(target.find("div").attr("id"));
-        _editor.$blockScrolling = Infinity;
-        _editor.container.style.height = "300px";
-        _editor.container.style.weight = "100%";
-        _editor.resize();
-        _editor.setTheme("ace/theme/chrome");
-        _editor.setShowPrintMargin(false);
-        _editor.setFontSize(13);
-        _editor.setStyle("editor");
-
-        // setup editor session
-        _editor.getSession().setUseWorker(false);
-        _editor.getSession().setUseSoftTabs(true);
-        _editor.getSession().setValue(code_content);
-        _editor.getSession().setMode("ace/mode/python");
-
-        // added event listener to update code textarea
-        // pass session into the function to bind the corresponding textarea.
-        _editor.getSession().on("change", function(e, _session) {{
-            var code = target.find("textarea");
-            code.val(_session.getValue());
-        }});
-    }
-
-    function render_page() {
-        var path_list = $(location).attr("pathname").match(/[^\/]+/g);
-
-        if (path_list.length === 1) {
-            var action = path_list[0];
-        } else {
-            var slug = path_list[0];
-            var action = path_list[1];
-        }
-
-        var section = $("section.create-update");
-        if (action === "create") {
-            section.prepend($("<h1></h1>").text("Create Problem"));
-            fill_form(action=action, slug=null, data=null);
-        } else {
-            $.ajax({
-                type: "get",
-                url: "/api/problems/" + slug + "/update/",
-                success: function(data) {
-                    section.prepend($("<h1></h1>").text("Update Problem - " + data["title"]));
-                    fill_form(action=action, slug=slug, data=data);
-                },
-                error: function(xhr, emsgs, err) {
-                    console.log(xhr.status + ": " + xhr.responseText);
-                }
-            });
-        }
-
-    }
-
-    function render_modal(title="", messages=[], action=null, url=null) {
-        var modal = $("div#msg-modal");
-        var modal_body = modal.find(".modal-body");
-        var modal_footer = modal.find(".modal-footer");
-        // clear
-        modal_body.empty();
-        modal_footer.remove();
-
-        // set title
-        modal.find("h4").text(title);
-
-        if (action === "create" || action === "edit" || action === "delete" ) {
-            for (var i = 0; i < messages.length; i++) {
-                var message = $("<p></p>").text(messages[i]);
-                modal_body.append(message);
-            }
-        } else if (action === "error") {
-            for (var key in messages) {
-                var message_title = $("label[for=" +  key  + "]").text();
-                console.log(message_title);
-                if (message_title) {
-                    modal_body.append($("<h5></h5>").text(message_title));
-                    modal_body.find("h5").css({"color": "#A9353B"});
-
-                    for (var i = 0; i < messages[key].length; i++) {
-                        var message = $("<p></p>").text(messages[key][i]);
-                        modal_body.append(message);
-                    }
-                } else {
-                    modal_body.append(messages[key]);
-                }
-            }
-        }
-
-        if (action === "edit") {
-            var modal_footer = $("<div></div>").addClass("modal-footer");
-            var stay_button = $("<button></button>").addClass("btn btn-default")
-                                                    .attr("data-dismiss", "modal")
-                                                    .text("STAY");
-            var leave_button = $("<a></a>").addClass("btn btn-primary")
-                                           .attr("href", url)
-                                           .text("LEAVE");
-            modal_footer.append(stay_button).append(leave_button);
-            modal.find(".modal-content").append(modal_footer);
-        }
-        modal.modal('show');
-    }
-
-    function parse_error_messages(messages) {
-        var messages
-    }
-
-    function parse_tags_to_json(value) {
-        if (value === "") {
-            return value;
-        }
-        var items = value.match(/[^,]+/g);
-
-        for (var i = 0; i < items.length; i++) {
-            items[i] = items[i].trim();
-        }
-        return JSON.stringify(items);
-    }
-
-    function parse_tags_to_list(value) {
-        if (value === "") {
-            return value;
-        }
-        value = value.replace(/\[|\]|\"/g,'');
-        var items = value.match(/[^,]+/g);
-        for (var i = 0; i < items.length; i++) {
-            items[i] = items[i].trim();
-        }
-        return items.join(", ");
-    }
-
-    function create_or_update(button) {
-        var action = $(button).attr("action");
-        var slug = $(button).attr("slug");
-        $("#tags").val(parse_tags_to_json($("#tags").val()));
-        var data = $("#create-update-form").serialize();
-        $("#tags").val(parse_tags_to_list($("#tags").val()));
-        console.log(data);
-        if (action === "create") {
-            var url = "/api/problems/create/";
-            var type = "post";
-        } else if (action === "edit") {
-            var url = "/api/problems/" + slug + "/update/";
-            var type = "put";
-        } else {
-            alert("unknown action");
-            return false;
-        }
-
-        $.ajax({
-            type: type,
-            url: url,
-            data: data,
-            success: function(data) {
-                var message = "The problem has been {action} successfully!!"
-                message = message.replace("{action}", (action === "create"?"created":"updated"));
-                var url = data["get_abs_url"];
-                render_modal("Success!!!", [message], action, url);
-                if (action === "create") {
-                    setTimeout(function() {
-                        window.location.href = url;
-                    }, 2000);
-                }
-            },
-            error: function(xhr, emsgs, err) {
-                var messages = JSON.parse(xhr.responseText);
-                console.log(messages);
-                render_modal("Error!!", messages, "error", null);
-            }
-        });
-    }
-    function delete_problem(button) {
-        var action = "delete";
-        var slug = $(button).attr("slug");
-        $.ajax({
-            type: "delete",
-            url: "/api/problems/" + slug + "/delete/",
-            success: function(data) {
-                var message = "The problem has been deleted successfully!!"
-                var url = "/problems/";
-                render_modal("Success!!!", [message], action, url);
-                setTimeout(function() {
-                    window.location.href = url;
-                }, 2000);
-            },
-            error: function(xhr, emsgs, err) {
-                var messages = JSON.parse(xhr.responseText);
-                console.log(messages);
-                render_modal("Error!!", messages, "error", null);
-            }
-        });
-    }
+  function delete_problem(button) {
+    var action = "delete";
+    var slug = $(button).attr("slug");
+    $.ajax({
+      type: "delete",
+      url: "/api/problems/" + slug + "/delete/",
+      success: function(data) {
+        var message = "The problem has been deleted successfully!!"
+        var url = "/problems/";
+        render_modal("Success!!!", [message], action, url);
+        setTimeout(function() {
+          window.location.href = url;
+        }, 2000);
+      },
+      error: function(xhr, emsgs, err) {
+        var messages = JSON.parse(xhr.responseText);
+        console.log(messages);
+        render_modal("Error!!", messages, "error", null);
+      }
+    });
+  }
+</script>
 {% endblock %}
 {% block js_document_ready %}
 render_page();

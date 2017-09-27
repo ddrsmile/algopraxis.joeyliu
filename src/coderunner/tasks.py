@@ -1,12 +1,18 @@
+# -*- coding: utf-8 -*-
 from celery import shared_task
 from celery.utils.log import get_task_logger
-from coderunner.src.runner import run
-import time
+from coderunner.runnerfacotry import RunnerNotFound, RunnerFactory
 logger = get_task_logger(__name__)
 
-@shared_task
-def run_codes(main_content, sol_content, input_data):
-    logger.info("Wait for at least 1s")
-    time.sleep(1)
-    logger.info("Run submitted codes")
-    return run(main_content, sol_content, input_data)
+@shared_task(max_retries=3,soft_time_limit=5)
+def run_codes(lang_mode, main, sol, testcase):
+    try:
+        factory = RunnerFactory(lang_mode)
+        runner = factory.create()
+        results = runner.run(main, sol, testcase)
+        return results
+    except RunnerNotFound:
+        return ["The runner for language mode, {}, was not found!".format(lang_mode)]
+    except Exception as e:
+        message = "An exception of type {0} occurred.\n {1}"
+        return [message.format(type(e).__name__, str(e))]
