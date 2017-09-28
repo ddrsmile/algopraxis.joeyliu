@@ -190,7 +190,7 @@ class RunAPIView(APIView):
             codeset = get_object_or_404(problem.codesets, lang_mode=lang_mode)
             main = codeset.main_code
         except Http404:
-            return Response(["The problem ro the language mode can not be found!!"])
+            return Response(["The problem or the language mode can not be found!!"])
         except Exception as e:
             message = "An exception of type {0} occurred.\n {1}"
             return Response([message.format(type(e).__name__, str(e))])
