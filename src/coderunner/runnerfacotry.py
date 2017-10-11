@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from .runner import PythonRunner, JavaRunner
+from .runner import PythonRunner, JavaRunner, CppRunner
 
 runner_mapper = {
     'python': PythonRunner,
-    'java': JavaRunner
+    'java': JavaRunner,
+    'c_cpp': CppRunner
 }
 
 class RunnerNotFound(Exception):

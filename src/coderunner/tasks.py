@@ -14,5 +14,5 @@ def run_codes(lang_mode, main, sol, testcase):
     except RunnerNotFound:
         return ["The runner for language mode, {}, was not found!".format(lang_mode)]
     except Exception as e:
-        message = "An exception of type {0} occurred.\n {1}"
+        message = "An exception of type {0} occurred in run_codes method. \n{1}"
         return [message.format(type(e).__name__, str(e))]

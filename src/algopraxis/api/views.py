@@ -197,6 +197,8 @@ class RunAPIView(APIView):
 
         result = run_codes.delay(lang_mode, main, sol, testcase)
         outputs = result.get(timeout=5)
+
+        # for implementation
         #outputs = run_codes(lang_mode, main, sol, testcase)
 
         return Response(outputs)
