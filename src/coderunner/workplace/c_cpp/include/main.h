@@ -6,8 +6,8 @@
 
 using namespace std;
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef MAIN_H
+#define MAIN_H
 
 // overload << operator to show vectors
 template<typename T>

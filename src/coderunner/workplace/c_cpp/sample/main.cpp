@@ -1,11 +1,11 @@
 #include <memory>
+#include "Factory.h"
+#include "main.h"
 #include "sols.cpp"
-#include "utils/inputparser/Factory.cpp"
-#include "utils/utils.h"
 
 int main(int argc, char* argv[]) {
     string path = GetFilePath(argc, argv);
-    Factory factory = Factory();
+    Factory factory;
     unique_ptr<IParser<int>> integerParser(factory.create<int>("integer"));
 
 

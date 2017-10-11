@@ -1,4 +1,4 @@
-#include "utils/headers.h"
+#include "sols.h"
 class Solution{
     public:
         vector<int> twoSum(vector<int>& nums, int target) {

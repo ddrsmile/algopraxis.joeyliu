@@ -13,7 +13,6 @@ class Factory {
     typedef unordered_map<string, CreateObjFn> registry_map;
 
     public:
-
         Factory();
 
 	    template <class T>

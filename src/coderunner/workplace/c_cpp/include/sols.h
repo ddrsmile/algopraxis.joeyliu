@@ -1,5 +1,5 @@
-#ifndef HEADERS_H
-#define HEADERS_H
+#ifndef SOLS_H
+#define SOLS_H
 
 #include <algorithm>
 #include <deque>
