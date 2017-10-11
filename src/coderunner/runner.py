@@ -139,3 +139,66 @@ class JavaRunner(Runner):
             raise CustomRuntimeError(str(c_result.stderr.decode('utf-8')))
 
         return self.str2list(r_result.stdout)
+
+class CppRunner(Runner):
+    def __init__(self):
+        super(CppRunner, self).__init__()
+        self.workplace = os.path.join(WORKPLACE, 'c_cpp', self.workplace_name)
+
+    def _rearrange_error_messages(self, estr):
+        lines = estr.strip().split('\n')[:3]
+        items = []
+        if 'Solution' in lines[0]:
+            info = lines[0].split(':')
+            items.append('line ' + str(int(info[1].strip()) - 1))
+            items.append(info[3].strip() + ': ' + info[4].strip())
+        else:
+            info = lines[1].split(':')
+            items.append('line ' + str(int(info[1].strip()) - 1))
+            items.append(info[3].strip() + ': ' + info[4].strip())
+            items.append(lines[2].strip())
+        return ', '.join(items)
+
+    def _set_files(self, main, sol, testcase):
+        os.mkdir(self.workplace)
+
+        with open(os.path.join(self.workplace, 'main.cpp'), 'w') as f:
+            for line in main:
+                f.write(line)
+
+        with open(os.path.join(self.workplace, 'sols.cpp'), 'w') as f:
+            f.write('#include "sols.h"\n')
+            for line in sol:
+                f.write(line)
+
+        with open(os.path.join(self.workplace, 'input.txt'), 'w') as f:
+            for line in testcase:
+                f.write(line)
+
+    def perform_run(self):
+        main_path = os.path.join(self.workplace, 'main.cpp')
+        o_path = os.path.join(self.workplace, 'main.o')
+        input_path = os.path.join(self.workplace, 'input.txt')
+
+        include_path = os.path.join(WORKPLACE, 'c_cpp', 'include')
+        parser_include_path = os.path.join(WORKPLACE, 'c_cpp', 'parser/include')
+        parser_lib_path = os.path.join(WORKPLACE, 'c_cpp', 'parser/lib')
+
+        c_cmds = ['clang++', '-std=c++11', '-I', include_path, '-I', parser_include_path, '-L', parser_lib_path, '-lparser','-o', o_path, main_path]
+        r_cmds = [o_path, input_path]
+
+        c_result = subprocess.run(c_cmds,
+                                  stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        if c_result.returncode and c_result.stderr:
+            raise CustomRuntimeError(str(c_result.stderr.decode('utf-8')))
+
+        r_result = subprocess.run(r_cmds,
+                                  stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
+        if r_result.returncode and r_result.stderr:
+            raise CustomRuntimeError(str(c_result.stderr.decode('utf-8')))
+
+        return self.str2list(r_result.stdout)
