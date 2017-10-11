@@ -184,7 +184,7 @@ class CppRunner(Runner):
         parser_include_path = os.path.join(WORKPLACE, 'c_cpp', 'parser/include')
         parser_lib_path = os.path.join(WORKPLACE, 'c_cpp', 'parser/lib')
 
-        c_cmds = ['clang++', '-std=c++11', '-I', include_path, '-I', parser_include_path, '-L', parser_lib_path, '-lparser','-o', o_path, main_path]
+        c_cmds = ['clang++', '-std=c++11', '-I', include_path, '-o', o_path, main_path, '-I', parser_include_path, '-L', parser_lib_path, '-lparser',]
         r_cmds = [o_path, input_path]
 
         c_result = subprocess.run(c_cmds,
