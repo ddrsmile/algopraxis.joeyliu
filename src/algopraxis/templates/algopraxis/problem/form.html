@@ -136,22 +136,6 @@
           <textarea rows=10 id="content" name="content" class="form-control" required></textarea>
         </div>
       </div>
-      <!--
-      <div class="form-group has-feedback">
-        <label class="col-sm-2 control-label" for="main_file_code">Main Codes</label>
-        <div class="col-sm-10">
-          <textarea rows=10 id="main_file_code" name="main_file_code" class="form-control" required></textarea>
-          <div id="main_codes_editor"></div>
-        </div>
-      </div>
-      <div class="form-group has-feedback">
-        <label class="col-sm-2 control-label" for="solution_start_code">Solution Start Codes</label>
-        <div class="col-sm-10">
-          <textarea rows=10 id="solution_start_code" name="solution_start_code" class="form-control" required></textarea>
-          <div id="solution_start_code_editor"></div>
-        </div>
-      </div>
-      -->
       <div class="form-group has-feedback">
         <label class="col-sm-2 control-label" for="default_testcase">Default Testcase</label>
         <div class="col-sm-10">
@@ -280,8 +264,7 @@
     }
   });
 
-  function fill_form(action=null, slug=null, data=null) {
-    var form = $("#create-update-form");
+  function fill_form(action, slug, data) {
     $(".action-button").attr("action", action).attr("slug", slug);
 
     if (data !== null) {
@@ -298,19 +281,17 @@
     }
 
     $("#main_file_code").hide();
-    var target =$("#main_file_code").parent();
-    //apply_ace_editor(target);
-
     $("#solution_start_code").hide();
-    var target = $("#solution_start_code").parent();
-    //apply_ace_editor(target);
+
     apply_simple_editor();
+    var create_update_button = $("#create-update-button"),
+        delete_button = $("#delete-button");
     if (action === "create") {
-      $("#create-update-button").append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
+      create_update_button.append('<i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE');
     } else {
-      $("#create-update-button").append('<i class="fa fa-save" aria-hidden="true"></i> SAVE');
-      $("#delete-button").parents("li").removeClass("hidden")
-      $("#delete-button").append('<i class="fa fa-trash-o" aria-hidden="true"></i> DELETE');
+      create_update_button.append('<i class="fa fa-save" aria-hidden="true"></i> SAVE');
+      delete_button.parents("li").removeClass("hidden");
+      delete_button.append('<i class="fa fa-trash-o" aria-hidden="true"></i> DELETE');
 
     }
   }
@@ -393,7 +374,7 @@
                   "main_code": data["main_code"],
                   "start_code": data["start_code"]
               };
-              edit_button.css("pointer-events", "auto");
+              $(button).css("pointer-events", "auto");
               form.remove();
           },
           error: function () {
@@ -453,26 +434,26 @@
   }
 
   function render_page() {
-    var path_list = $(location).attr("pathname").match(/[^\/]+/g);
+    var path_list = $(location).attr("pathname").match(/[^\/]+/g),
+        action;
 
     if (path_list.length === 1) {
-      var action = path_list[0];
+      action = path_list[0];
     } else {
       var slug = path_list[0];
-      var action = path_list[1];
+      action = path_list[1];
     }
 
-    var section = $("section.problem");
     if (action === "create") {
       $("h1.page-title").text("Create Problem");
-      fill_form(action=action, slug=null, data=null);
+      fill_form(action, null, null);
     } else {
       $.ajax({
         type: "get",
         url: "/api/problems/" + slug + "/update/",
         success: function(data) {
           $("h1.page-title").text("Update Problem - " + data["title"]);
-          fill_form(action=action, slug=slug, data=data);
+          fill_form(action, slug, data);
           var codesets = data["codesets"];
           render_added_codeset(codesets);
         },
@@ -533,7 +514,7 @@
   }
 
   function parse_error_messages(messages) {
-    var messages
+    //TODO;
   }
 
   function parse_tags_to_json(value) {
@@ -561,18 +542,21 @@
   }
 
   function create_or_update(button) {
-    var action = $(button).attr("action");
-    var slug = $(button).attr("slug");
-    $("#tags").val(parse_tags_to_json($("#tags").val()));
-    var data = $("#create-update-form").serialize();
-    $("#tags").val(parse_tags_to_list($("#tags").val()));
-    console.log(data);
+    var action = $(button).attr("action"),
+        slug = $(button).attr("slug"),
+        tags = $("#tags"),
+        data = $("#create-update-form").serialize(),
+        url,
+        type;
+    tags.val(parse_tags_to_json(tags.val()));
+    tags.val(parse_tags_to_list(tags.val()));
+
     if (action === "create") {
-      var url = "/api/problems/create/";
-      var type = "post";
+      url = "/api/problems/create/";
+      type = "post";
     } else if (action === "edit") {
-      var url = "/api/problems/" + slug + "/update/";
-      var type = "put";
+      url = "/api/problems/" + slug + "/update/";
+      type = "put";
     } else {
       alert("unknown action");
       return false;
@@ -583,7 +567,7 @@
       url: url,
       data: data,
       success: function(data) {
-        var message = "The problem has been {action} successfully!!"
+        var message = "The problem has been {action} successfully!!";
         message = message.replace("{action}", (action === "create"?"created":"updated"));
         var url = data["get_abs_url"];
         render_modal("Success!!!", [message], action, url);
@@ -593,9 +577,8 @@
             }, 2000);
           }
         },
-        error: function(xhr, emsgs, err) {
+        error: function(xhr) {
           var messages = JSON.parse(xhr.responseText);
-          console.log(messages);
           render_modal("Error!!", messages, "error", null);
         }
     });
@@ -607,15 +590,15 @@
     $.ajax({
       type: "delete",
       url: "/api/problems/" + slug + "/delete/",
-      success: function(data) {
-        var message = "The problem has been deleted successfully!!"
+      success: function() {
+        var message = "The problem has been deleted successfully!!";
         var url = "/problems/";
         render_modal("Success!!!", [message], action, url);
         setTimeout(function() {
           window.location.href = url;
         }, 2000);
       },
-      error: function(xhr, emsgs, err) {
+      error: function(xhr) {
         var messages = JSON.parse(xhr.responseText);
         console.log(messages);
         render_modal("Error!!", messages, "error", null);
