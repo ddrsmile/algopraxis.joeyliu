@@ -201,7 +201,7 @@
       type: "post",
       url: "/api/solution" + slug + "create_or_update/" + $("#id_lang_mode").val(),
       data: $('#solution-form').serialize(),
-      success: function(result) {
+      success: function() {
         // update window.solutions if save is successful.
         window.solutions[$("#id_lang_mode").val()] = $("#id_code").val();
         var modal = $("div#msg-modal");
@@ -225,18 +225,20 @@
         }, 3000);
       }
     });
-  };
+  }
 
   function run(button) {
-    var result_panel = $("section.coderunner .result-panel");
+    var solution_form = $("#solution-form"),
+        result_panel = $("section.coderunner .result-panel"),
+        slug = $(location).attr("pathname"),
+        post_data = {};
+
     result_panel.empty();
     result_panel.append($("<i></i>").addClass("fa fa-spinner fa-pulse fa-2x fa-fw"));
     $('html, body').scrollTop( $(document).height() );
     $(button).prop("disabled", true);
-    var slug = $(location).attr("pathname");
-    var post_data = {};
-    post_data["lang_mode"] = $("#solution-form").find("#id_lang_mode").val();
-    post_data["code"] = $("#solution-form").find("#id_code").val();
+    post_data["lang_mode"] = solution_form.find("#id_lang_mode").val();
+    post_data["code"] = solution_form.find("#id_code").val();
     post_data["testcases"] = $("#id_testcases").val();
     $.ajax({
       type: "post",
@@ -244,18 +246,16 @@
       data: post_data,
       success: function(data) {
         $("section.coderunner .result-panel").empty();
-        console.log(data);
-        console.log(typeof data);
         render_results(data);
         $('html, body').scrollTop( $(document).height() );
         $(button).prop("disabled", false);
       },
-      error: function(xhr, emsgs, err) {
+      error: function(xhr, emsgs) {
         alert(emsgs);
         alert(xhr.status + ": " + xhr.responseText);
       }
     });
-  };
+  }
 
   function apply_ace_editor() {
     window.ACEInstances = null;
@@ -281,8 +281,8 @@
     // added event listener to update code textarea
     // pass session into the function to bind the corresponding textarea.
     _editor.getSession().on("change", function(e, _session) {
-      var code = $("#id_code");
-      code.val(_session.getValue());
+      $("section.coderunner .result-panel").empty();
+      $("#id_code").val(_session.getValue());
     });
     window.ACEInstances = _editor;
   }
@@ -328,12 +328,6 @@
   }
 
   function prepare(codesets, solutions) {
-    var lang_mode_map = {
-      "cpp": "c_cpp",
-      "java": "java",
-      "python": "python"
-    }
-
     window.solutions = {};
 
     var solution = null;
@@ -356,11 +350,11 @@
         }
       }
     }
-
+    console.log(solution);
     if (!solution) {
       solution = {
-        "lang_mode": "python3",
-        "code": window.solutions["python3"]
+        "lang_mode": "python",
+        "code": window.solutions["python"]
       }
     }
     return solution;
@@ -372,15 +366,14 @@
       type: "get",
       url: "/api/problems" + slug,
       success: function(data) {
-        render_problem(data)
-        start_codes = data["solution_start_code"];
+        render_problem(data);
         codesets = data['codesets'];
         solutions = data["solutions"];
         var solution = prepare(codesets, solutions);
         render_solution(solution);
         render_testcase(data);
       },
-      error: function(xhr, emsgs, err) {
+      error: function(xhr, emsgs) {
         console.log(emsgs);
         console.log(xhr.status + ": " + xhr.responseText);
       }

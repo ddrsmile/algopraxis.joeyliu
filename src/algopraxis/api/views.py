@@ -54,33 +54,19 @@ class ProblemDetailAPIView(RetrieveAPIView):
     lookup_field = 'slug'
     permission_classes = [AllowAny]
 
-    def filter_solutions(self, solutions):
+    def get_own_solutions(self, solutions):
         user_id = self.request.user.id
-        for solution in solutions:
-            if solution['user'] == user_id:
-                return solution
-        return None
-
-    def get_user_solutions(self, solutions):
-        user_id = self.request.user.id
-        user_solutions = []
-        for solution in solutions:
-            if solution['user'] == user_id:
-                user_solutions.append(solution)
-        return user_solutions
+        return [solution for solution in solutions if solution['user'] == user_id]
 
     def customize_data(self, data):
-        solutions = self.filter_solutions(data.pop('solutions'))
-        #user_solutions = self.get_user_solutions(data.pop('solutions'))
+        solutions = self.get_own_solutions(data.pop('solutions', []))
         data['solutions'] = solutions
-        #data['user_solutions'] = user_solutions
         return data
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.solutions = instance.solutions.filter(user_id=self.request.user.id)
         serializer = self.get_serializer(instance)
-        data = serializer.data
+        data = self.customize_data(serializer.data)
 
         return Response(data)
 
