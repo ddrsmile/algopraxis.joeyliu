@@ -103,10 +103,16 @@ class JavaRunner(Runner):
         os.mkdir(self.workplace)
 
         with open(os.path.join(self.workplace, 'Main.java'), 'w') as f:
+            # add required packages
+            f.write('import auxiliary.*;')
+            f.write('import parser.*;')
+            f.write('import java.util.*;')
+            f.write('import java.io.*;')
             for line in main:
                 f.write(line)
 
         with open(os.path.join(self.workplace, 'Solution.java'), 'w') as f:
+            # add required packages
             f.write('import java.util.*;')
             for line in sol:
                 f.write(line)
