@@ -4,7 +4,7 @@ from celery.utils.log import get_task_logger
 from coderunner.runnerfacotry import RunnerNotFound, RunnerFactory
 logger = get_task_logger(__name__)
 
-@shared_task(max_retries=3,soft_time_limit=5)
+@shared_task(max_retries=3, soft_time_limit=10)
 def run_codes(lang_mode, main, sol, testcase):
     try:
         factory = RunnerFactory(lang_mode)
