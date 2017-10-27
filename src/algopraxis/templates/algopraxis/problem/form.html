@@ -374,7 +374,7 @@
                   "main_code": data["main_code"],
                   "start_code": data["start_code"]
               };
-              $(button).css("pointer-events", "auto");
+              $("span.edit-button[data=" + lang_mode + "]").css("pointer-events", "auto");
               form.remove();
           },
           error: function () {
