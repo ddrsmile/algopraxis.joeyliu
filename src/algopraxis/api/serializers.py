@@ -164,7 +164,7 @@ class ProblemDetailSerializer(TagSerializer, serializers.ModelSerializer):
 
 class ProblemCreateUpdateSerializer(TagSerializer, serializers.ModelSerializer):
     tags = TagSerializerField()
-    codesets = CodeSetSerializer(many=True)
+    codesets = CodeSetSerializer(many=True, read_only=True)
     class Meta:
         model = Problem
         fields =[

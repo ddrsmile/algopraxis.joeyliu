@@ -181,10 +181,10 @@ class RunAPIView(APIView):
             message = "An exception of type {0} occurred.\n {1}"
             return Response([message.format(type(e).__name__, str(e))])
 
-        result = run_codes.delay(lang_mode, main, sol, testcase)
-        outputs = result.get(timeout=5)
+        #result = run_codes.delay(lang_mode, main, sol, testcase)
+        #outputs = result.get(timeout=5)
 
         # for implementation
-        #outputs = run_codes(lang_mode, main, sol, testcase)
+        outputs = run_codes(lang_mode, main, sol, testcase)
 
         return Response(outputs)

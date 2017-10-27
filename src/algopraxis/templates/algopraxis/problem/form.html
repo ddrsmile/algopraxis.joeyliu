@@ -545,10 +545,11 @@
     var action = $(button).attr("action"),
         slug = $(button).attr("slug"),
         tags = $("#tags"),
-        data = $("#create-update-form").serialize(),
         url,
         type;
+
     tags.val(parse_tags_to_json(tags.val()));
+    var data = $("#create-update-form").serialize();
     tags.val(parse_tags_to_list(tags.val()));
 
     if (action === "create") {
@@ -600,7 +601,6 @@
       },
       error: function(xhr) {
         var messages = JSON.parse(xhr.responseText);
-        console.log(messages);
         render_modal("Error!!", messages, "error", null);
       }
     });
