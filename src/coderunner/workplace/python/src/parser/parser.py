@@ -73,7 +73,7 @@ class Parser(object):
         return outputs
 
 class IntegerParser(Parser):
-    def __init__(self, path):
+    def __init__(self, path=None):
         super(IntegerParser, self).__init__(path)
 
     def _to_value(self, chars):
@@ -81,7 +81,7 @@ class IntegerParser(Parser):
         return int(chars.strip())
 
 class FloatParser(Parser):
-    def __init__(self, path):
+    def __init__(self, path=None):
         super(FloatParser, self).__init__(path)
 
     def _to_value(self, chars):
@@ -89,7 +89,7 @@ class FloatParser(Parser):
         return float(chars.strip())
 
 class StringParser(Parser):
-    def __init__(self, path):
+    def __init__(self, path=None):
         super(StringParser, self).__init__(path)
 
     def _clean_chars(self, chars):

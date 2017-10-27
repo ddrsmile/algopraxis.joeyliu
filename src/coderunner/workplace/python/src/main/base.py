@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from src.utils.inputparser.parserfactory import ParserFactory
+from src.parser.parserfactory import ParserFactory
 
 class Base(object):
-    def __init__(self, path, parser_type):
+    def __init__(self, path):
         self.path = path
-        factory = ParserFactory(parser_type)
-        self.parser = factory.create(path)
+        self.factory = ParserFactory()
