@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from celery import Celery
-from django.conf import settings
+from .config import CeleryConfig
 
-app = Celery('coderunner')
-app.config_from_object(settings)
+app = Celery('coderunner', include=['coderunner.tasks'])
+app.config_from_object(CeleryConfig, namespace='CELERY')
