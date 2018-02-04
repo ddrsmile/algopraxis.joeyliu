@@ -1,10 +1,13 @@
+import json
 import os
-
 import pymysql
+
 pymysql.install_as_MySQLdb()
 
-with open('/usr/local/etc/SECRET_KEY') as f:
-    SECRET_KEY = f.read().strip()
+with open('/usr/local/etc/webapps.json') as f:
+    config = json.load(f)
+
+SECRET_KEY = config["SECRET_KEY"]
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -64,18 +67,15 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-import csv
-DB_INFO = csv.reader(open('/usr/local/etc/dbinfo_algopraxis.csv'), delimiter=',')
-DB_INFO = next(DB_INFO)
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': DB_INFO[0],
-        'USER': DB_INFO[1],
-        'PASSWORD': DB_INFO[2],
-        'HOST': DB_INFO[3],
-        'PORT': DB_INFO[4],
+        'NAME': 'algopraxis',
+        'USER': config["DB"]["USER"],
+        'PASSWORD': config["DB"]["PASSWORD"],
+        'HOST': config["DB"]["HOST"],
+        'PORT': config["DB"]["PORT"],
         'OPTIONS': {
             'sql_mode': 'traditional',
         }
