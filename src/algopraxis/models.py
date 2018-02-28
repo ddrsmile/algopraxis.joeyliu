@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.safestring import mark_safe
@@ -74,7 +74,7 @@ class AbstractTimeStamp(models.Model):
 
 
 class ProblemTag(TaggedItemBase):
-    content_object = models.ForeignKey('Problem')
+    content_object = models.ForeignKey('Problem', on_delete=models.CASCADE)
 
 class Problem(AbstractBase, AbstractTimeStamp):
     # basic information
@@ -138,7 +138,7 @@ class CodeSet(AbstractBase, AbstractTimeStamp):
         ordering = ['-updated_at', '-created_at']
 
 class Solution(AbstractBase, AbstractTimeStamp):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, default=1)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE, related_name='solutions')
     lang_mode = models.CharField(max_length=20, choices=LANG_MODE, default='python')
     code = models.TextField()
