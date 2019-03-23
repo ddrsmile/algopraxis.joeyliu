@@ -5,4 +5,4 @@ ROOT=$( dirname $DEPLOYDIR)
 DJANGODIR=${ROOT}/src
 
 cd ${DJANGODIR}
-exec ${DEPLOYDIR}/env/bin/celery worker --app=coderunner.celery.app --loglevel=INFO
+exec ${DEPLOYDIR}/venv/bin/celery worker --app=coderunner.celery.app --loglevel=INFO
