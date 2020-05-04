@@ -7,8 +7,8 @@ __pycache__/
 *.sock
 *SECRET_KEY*
 db.sqlite3
-src/static/*
-src/media/*
+static/*
+media/*
 .vscode/
 .idea/
 celerybeat-schedule.db
