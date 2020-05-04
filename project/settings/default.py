@@ -1,10 +1,4 @@
-import json
 import os
-
-with open('/usr/local/etc/webapps.json') as f:
-    config = json.load(f)
-
-SECRET_KEY = config["SECRET_KEY"]
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -26,8 +20,6 @@ INSTALLED_APPS = [
     'coderunner',
     'parts'
 ]
-
-TAGGIT_CASE_INSENSITIVE = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,23 +53,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'algopraxis',
-        'USER': config["DB"]["USER"],
-        'PASSWORD': config["DB"]["PASSWORD"],
-        'HOST': config["DB"]["HOST"],
-        'PORT': config["DB"]["PORT"],
-        'OPTIONS': {
-            'sql_mode': 'traditional',
-        },
-        'TEST': {
-            'ENGINE': 'django.db.backends.sqlite3',
-        }
-    },
-}
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Tokyo'
@@ -97,3 +72,8 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# 3rd party settings
+
+# django-taggit
+TAGGIT_CASE_INSENSITIVE = True
