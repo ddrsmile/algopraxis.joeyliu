@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import random
 import shutil
+import string
 import subprocess
-import string, random
+
 from coderunner import BASE_DIR
 
 WORKPLACE = os.path.join(BASE_DIR, 'workplace')
@@ -50,6 +52,7 @@ class Runner(object):
             if self.workplace and os.path.isdir(self.workplace):
                 shutil.rmtree(self.workplace)
 
+
 class PythonRunner(Runner):
     def __init__(self):
         super(PythonRunner, self).__init__()
@@ -89,6 +92,7 @@ class PythonRunner(Runner):
             raise CustomRuntimeError(str(result.stderr.decode('utf-8')))
 
         return self.str2list(result.stdout)
+
 
 class JavaRunner(Runner):
     def __init__(self):
@@ -149,6 +153,7 @@ class JavaRunner(Runner):
 
         return self.str2list(r_result.stdout)
 
+
 class CppRunner(Runner):
     def __init__(self):
         super(CppRunner, self).__init__()
@@ -193,13 +198,14 @@ class CppRunner(Runner):
         parser_include_path = os.path.join(WORKPLACE, 'c_cpp', 'parser/include')
         parser_lib_path = os.path.join(WORKPLACE, 'c_cpp', 'parser/lib')
 
-        c_cmds = ['clang++', '-std=c++11', '-I', include_path, '-o', o_path, main_path, '-I', parser_include_path, '-L', parser_lib_path, '-lparser',]
+        c_cmds = ['clang++', '-std=c++11', '-I', include_path, '-o', o_path, main_path, '-I', parser_include_path, '-L', parser_lib_path, '-lparser',
+                  ]
         r_cmds = [o_path, input_path]
 
         c_result = subprocess.run(c_cmds,
                                   stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
         if c_result.returncode and c_result.stderr:
             raise CustomRuntimeError(str(c_result.stderr.decode('utf-8')))
 
