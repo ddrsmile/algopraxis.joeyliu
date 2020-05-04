@@ -4,4 +4,4 @@ python:
 
 install:
     - pip install -r requirements.txt
-script: python manage.py --settings project.settings.testing
+script:  python manage.py test --settings project.settings.testing
