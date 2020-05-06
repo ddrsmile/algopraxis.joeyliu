@@ -1,14 +1,18 @@
+# MacOS
 .DS_Store
-env/
+
+# ide
+.idea/
+.vscode/
+
+# pythone
 venv/
 __pycache__/
-*.log
-*.pyc
-*.sock
+
+# django
 *SECRET_KEY*
 db.sqlite3
 static/*
 media/*
-.vscode/
-.idea/
 celerybeat-schedule.db
+.coverage

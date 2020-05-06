@@ -5,7 +5,7 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'', include(('algopraxis.urls', 'algopraxis'), namespace='algopraxis')),
+    url(r'', include(('api.urls', 'api'), namespace='algopraxis.api')),
 ]
 
 if settings.DEBUG:

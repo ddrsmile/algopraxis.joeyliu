@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
 class IsOwnerOrReadOnly(BasePermission):
     message = 'You must be the owner of this object'
-    allow_methods = ['GET', 'PUT', 'POST']
+    allow_methods = ('GET', 'PUT', 'POST', 'HEAD', 'OPTIONS')
 
     def has_permission(self, request, view):
         return request.method in self.allow_methods
@@ -13,8 +14,3 @@ class IsOwnerOrReadOnly(BasePermission):
             return True
 
         return obj.user == request.user
-
-
-class IsReadOnly(BasePermission):
-    def has_permission(self, request, view):
-        return request.method in SAFE_METHODS
