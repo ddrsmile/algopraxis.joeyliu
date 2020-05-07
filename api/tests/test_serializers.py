@@ -1,17 +1,48 @@
 # -*- coding: utf-8 -*-
 import json
 
+from django.db import (
+    connection,
+    models
+)
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
-from taggit.models import Tag
+from rest_framework.serializers import ModelSerializer
+from taggit.models import (
+    Tag,
+    TaggedItemBase
+)
+from taggit.managers import TaggableManager
 
 from ..serializers import (
     TagList,
     TagSerializerField,
+    TagSerializer
 )
 
-from .models import TagSerializerTestModel
-from .serializers import TagTestSerializer
+
+class TestModelTag(TaggedItemBase):
+    content_object = models.ForeignKey('TagSerializerTestModel', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'test_model_tag'
+        managed = False
+
+
+class TagSerializerTestModel(models.Model):
+    tags = TaggableManager(through=TestModelTag, blank=True)
+
+    class Meta:
+        db_table = 'tag_serializer_test'
+        managed = False
+
+
+class TagTestSerializer(TagSerializer, ModelSerializer):
+    tags = TagSerializerField()
+
+    class Meta:
+        model = TagSerializerTestModel
+        fields = '__all__'
 
 
 class TagListTest(TestCase):
@@ -54,6 +85,18 @@ class TagSerializerFieldTest(TestCase):
 
 
 class TagSerializerTest(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        with connection.schema_editor() as schema_editor:
+            schema_editor.create_model(TagSerializerTestModel)
+            schema_editor.create_model(TestModelTag)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        with connection.schema_editor() as schema_editor:
+            schema_editor.delete_model(TestModelTag)
+            schema_editor.delete_model(TagSerializerTestModel)
 
     def test_tag_serialize_creation(self) -> None:
         req_data = {
