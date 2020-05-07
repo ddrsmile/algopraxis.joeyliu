@@ -1,37 +1,19 @@
 # -*- coding: utf-8 -*-
 import json
+
 from django.test import TestCase
-
-from django.db import models
-from rest_framework.serializers import ModelSerializer
-from taggit.models import Tag
 from rest_framework.exceptions import ValidationError
+from taggit.models import Tag
 
-from .models import (
-    Problem,
-)
-
-from .serializers import (
+from ..serializers import (
     TagList,
     TagSerializerField,
-    TagSerializer,
 )
 
-
-# models.py
-class ProblemTest(TestCase):
-
-    def test_problem_creation(self) -> None:
-        problem = Problem.objects.create(
-            title='test title',
-            difficulty=1,
-            parser_type=1,
-            input_type=1,
-        )
-        self.assertEqual(problem.slug, 'test-title')
+from .models import TagSerializerTestModel
+from .serializers import TagTestSerializer
 
 
-# serializers.py
 class TagListTest(TestCase):
 
     def setUp(self) -> None:
@@ -71,23 +53,26 @@ class TagSerializerFieldTest(TestCase):
         self.assertRaises(ValidationError, self.field.to_representation, value='["tag1", "tag2"]')
 
 
-# class TagSerializerTest(TestCase):
-#
-#     class TestModel(models.Model):
-#         tags = TaggableManager()
-#
-#         class Meta:
-#             abstract = True
-#
-#     class TagTestSerializer(TagSerializer, ModelSerializer):
-#         tags = TagSerializerField()
-#
-#         class Meta:
-#             model = TestModel
-#
-#     def test_tag_serialize(self) -> None:
-#         tags = ['tag1', 'tag2']
-#         serialize = TagSerializer(data={'tags': tags})
-#         print(serialize.is_valid(raise_exception=True))
-#         print(serialize.errors)
-#         print(serialize.data)
+class TagSerializerTest(TestCase):
+
+    def test_tag_serialize_creation(self) -> None:
+        req_data = {
+            'tags': ['tag1', 'tag2']
+        }
+
+        serializer = TagTestSerializer(data=req_data)
+        serializer.is_valid(raise_exception=True)
+        test_model = serializer.save()
+        self.assertEqual(list(test_model.tags.names().order_by('name')), req_data['tags'])
+
+    def test_tag_serialize_update(self) -> None:
+        req_data = {
+            'tags': ['tag2', 'tag3']
+        }
+
+        test_model = TagSerializerTestModel.objects.create()
+        test_model.tags.add('tag1', 'tag2')
+        serializer = TagTestSerializer(test_model, data=req_data)
+        serializer.is_valid(raise_exception=True)
+        test_model = serializer.save()
+        self.assertEqual(list(test_model.tags.names().order_by('name')), req_data['tags'])
