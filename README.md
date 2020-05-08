@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/nantsou/algopraxis.svg?branch=master)](https://travis-ci.com/nantsou/algopraxis)
 
-### TODO:
+### TODO - 2020-05-08 updated:
 
 - [ ] migrate coderunner to executor
 - [ ] implement jwt authentication
