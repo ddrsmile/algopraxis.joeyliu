@@ -4,4 +4,7 @@ python:
 
 install:
     - pip install -r requirements.txt
-script:  python manage.py test --settings project.settings.testing
+    - pip install coverage
+script:
+    - coverage run --source 'api' --omit '*/migrations/*,*/tests*,*/__init__.py,*/apps.py,*/urls.py'  manage.py test api -v 0 --settings project.settings.testing --noinput
+    - coverage report -m

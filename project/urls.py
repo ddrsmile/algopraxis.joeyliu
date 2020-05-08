@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.conf.urls import include, url
 from django.contrib import admin
+from django.urls import (
+    re_path,
+    include
+)
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'', include(('algopraxis.urls', 'algopraxis'), namespace='algopraxis')),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'', include(('api.urls', 'api'), namespace='api')),
 ]
 
 if settings.DEBUG:
