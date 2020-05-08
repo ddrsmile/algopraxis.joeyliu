@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.db.utils import IntegrityError
+import typing
+
+from django.db.models import Model
 from rest_framework.generics import (
     get_object_or_404,
     CreateAPIView,
@@ -17,6 +19,7 @@ from ..models import (
     Solution
 )
 from .paginations import ProblemPageNumberPagination
+from .permissons import IsOwnerOrReadOnly
 from .serializers import (
     ProblemCreateSerializer,
     ProblemSerializer,
@@ -27,6 +30,11 @@ from .serializers import (
     SolutionSerializer,
     ExecutorSerializer
 )
+
+
+def check_integrity(model: typing.Type[Model], **kwargs) -> None:
+    if model.objects.filter(**kwargs).exists():
+        raise ValidationError(f'Integrity Error of {model.__name__}')
 
 
 class ProblemCreateAPIView(CreateAPIView):
@@ -57,17 +65,12 @@ class ProblemDetailAPIView(RetrieveAPIView):
 
 class CodeSetCreateAPIView(CreateAPIView):
     serializer_class = CodeSetCreateSerializer
-
-    def get_queryset(self):
-        pass
+    queryset = CodeSet.objects.all()
 
     def perform_create(self, serializer):
         problem = get_object_or_404(Problem, id=self.request.data.get('problem_id'))
-        try:
-            serializer.save(problem=problem)
-        except IntegrityError:
-            # TODO: standardize the error code and error message.
-            raise ValidationError('IntegrityError')
+        check_integrity(CodeSet, problem_id=problem.id, lang_mode=serializer.validated_data.get('lang_mode'))
+        serializer.save(problem=problem)
 
 
 class CodeSetRUDAPIView(RetrieveUpdateDestroyAPIView):
@@ -77,20 +80,11 @@ class CodeSetRUDAPIView(RetrieveUpdateDestroyAPIView):
 
 class SolutionCreateAPIView(CreateAPIView):
     serializer_class = SolutionCreateSerializer
-
-    def get_queryset(self):
-        pass
-
-    def perform_create(self, serializer):
-        problem = get_object_or_404(Problem, id=self.request.data.get('problem_id'))
-        try:
-            serializer.save(problem=problem, user=self.request.user)
-        except IntegrityError:
-            # TODO: standardize the error code and error message.
-            raise ValidationError('IntegrityError')
+    queryset = Solution.objects.all()
 
 
 class SolutionRUDAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsOwnerOrReadOnly]
     serializer_class = SolutionSerializer
     queryset = Solution.objects.all()
 

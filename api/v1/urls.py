@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import url
+from django.urls import re_path
 from . import views
 
 urlpatterns = [
     # problems
-    url(r'^problems$', views.ProblemListAPIView.as_view(), name='problem_list'),
-    url(r'^problems/create$', views.ProblemCreateAPIView.as_view(), name='problem_create'),
-    url(r'^problems/(?P<pk>[\d]+)$', views.ProblemRUDAPIView.as_view(), name='problem_rud'),
-    url(r'^problems/(?P<pk>[\d]+)/detail$', views.ProblemDetailAPIView.as_view(), name='problem_detail'),
+    re_path(r'^problems$', views.ProblemListAPIView.as_view(), name='problem_list'),
+    re_path(r'^problems/create$', views.ProblemCreateAPIView.as_view(), name='problem_create'),
+    re_path(r'^problems/(?P<pk>[\d]+)$', views.ProblemRUDAPIView.as_view(), name='problem_rud'),
+    re_path(r'^problems/(?P<pk>[\d]+)/detail$', views.ProblemDetailAPIView.as_view(), name='problem_detail'),
 
     # code_set
-    url(r'^codesets/create$', views.CodeSetCreateAPIView.as_view(), name='code_set_create'),
-    url(r'^codesets/(?P<pk>[\d]+)$', views.CodeSetRUDAPIView.as_view(), name='code_set_rud'),
+    re_path(r'^codesets/create$', views.CodeSetCreateAPIView.as_view(), name='code_set_create'),
+    re_path(r'^codesets/(?P<pk>[\d]+)$', views.CodeSetRUDAPIView.as_view(), name='code_set_rud'),
 
     # solutions
-    url(r'^solutions/create$', views.SolutionCreateAPIView.as_view(), name='solution_create'),
-    url(r'^solutions/(?P<pk>[\d]+)$', views.SolutionRUDAPIView.as_view(), name='solution_rud'),
+    re_path(r'^solutions/create$', views.SolutionCreateAPIView.as_view(), name='solution_create'),
+    re_path(r'^solutions/(?P<pk>[\d]+)$', views.SolutionRUDAPIView.as_view(), name='solution_rud'),
 
     # executor
-    url(r'^execute$', views.ExecuteAPIView.as_view(), name='execute'),
+    re_path(r'^execute$', views.ExecuteAPIView.as_view(), name='execute'),
 ]

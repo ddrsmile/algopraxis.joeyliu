@@ -7,12 +7,13 @@ from rest_framework.pagination import PageNumberPagination
 
 class ProblemPageNumberPagination(PageNumberPagination):
     page_size = 15
+    page_size_query_param = 'page_size'
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
             ('count', self.page.paginator.count),
             ('next', self.page.number + 1 if self.page.number < self.page.paginator.num_pages else None),
-            ('previous', self.page.number - 1 if self.page.number > 1 else None),
+            ('prev', self.page.number - 1 if self.page.number > 1 else None),
             ('page_range', self.get_page_range()),
             ('results', data)
         ]))
