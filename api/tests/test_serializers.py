@@ -47,9 +47,6 @@ class TagTestSerializer(TagSerializer, ModelSerializer):
 
 class TagListTest(TestCase):
 
-    def setUp(self) -> None:
-        self.field = TagSerializerField()
-
     def test_tag_list(self) -> None:
         tag_list = TagList(['tag1'])
         self.assertEqual(tag_list + TagList(['tag2']), TagList(['tag1', 'tag2']))
@@ -60,8 +57,14 @@ class TagListTest(TestCase):
 
 class TagSerializerFieldTest(TestCase):
 
-    def setUp(self) -> None:
-        self.field = TagSerializerField()
+    @classmethod
+    def setUpClass(cls) -> None:
+        super(TagSerializerFieldTest, cls).setUpClass()
+        cls.field = TagSerializerField()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        super(TagSerializerFieldTest, cls).tearDownClass()
 
     def test_to_internal_value(self) -> None:
         self.assertEqual(self.field.to_internal_value([]), [])
