@@ -80,8 +80,20 @@ TAGGIT_CASE_INSENSITIVE = True
 
 # django-rest-framework
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'api.handlers.exc_handler',
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
     ],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+}
+
+# django-redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
 }

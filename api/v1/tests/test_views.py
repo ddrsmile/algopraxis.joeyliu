@@ -32,12 +32,12 @@ class APIViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        cls.admin_user = User.objects.create(username='admin_user', is_superuser=True)
-        cls.admin_user.set_password('admin_user')
-        cls.admin_user.save()
-        cls.member_user = User.objects.create(username='member_user',)
-        cls.member_user.set_password('member_user')
-        cls.member_user.save()
+        cls.user1 = User.objects.create(username='user1')
+        cls.user1.set_password('user1')
+        cls.user1.save()
+        cls.user2 = User.objects.create(username='user2',)
+        cls.user2.set_password('user2')
+        cls.user2.save()
 
         # create 5 problems
         for i in range(1, 6):
@@ -61,7 +61,7 @@ class APIViewTest(TestCase):
                 nums = nums or nums + 1
 
             for n in range(1, nums+1):
-                user = cls.admin_user if i % 2 == 1 else cls.member_user
+                user = cls.user1 if i % 2 == 1 else cls.user2
                 lang_mode = n
                 CodeSet.objects.create(
                     problem=p,
@@ -113,22 +113,22 @@ class APIViewTest(TestCase):
 
     def test_problem_detail_api_view_with_own_solution(self) -> None:
         problem_id = 1
-        self.client.login(username='admin_user', password='admin_user')
+        self.client.login(username='user1', password='user1')
         resp = self.client.get(reverse('api:v1:problem_detail', kwargs={'pk': problem_id}))
         data = resp.json()
 
         self.compare_children(CodeSet.objects.filter(problem_id=problem_id).all(), data.get('code_sets'))
-        self.compare_children(Solution.objects.filter(problem_id=problem_id, user_id=self.admin_user.id).all(),
+        self.compare_children(Solution.objects.filter(problem_id=problem_id, user_id=self.user1.id).all(),
                               data.get('solutions'))
 
     def test_problem_detail_api_view_without_own_solution(self) -> None:
         problem_id = 2
-        self.client.login(username='admin_user', password='admin_user')
+        self.client.login(username='user1', password='user1')
         resp = self.client.get(reverse('api:v1:problem_detail', kwargs={'pk': problem_id}))
         data = resp.json()
 
         self.compare_children(CodeSet.objects.filter(problem_id=problem_id).all(), data.get('code_sets'))
-        self.compare_children(Solution.objects.filter(problem_id=problem_id, user_id=self.admin_user.id).all(),
+        self.compare_children(Solution.objects.filter(problem_id=problem_id, user_id=self.user1.id).all(),
                               data.get('solutions'))
 
     def test_code_test_creation_api_view_integrity_check(self) -> None:
@@ -168,8 +168,8 @@ class APIViewTest(TestCase):
         self.assertEqual(resp.status_code, 403)
 
     def test_solution_api_view_update_others(self) -> None:
-        self.client.login(username='admin_user', password='admin_user')
-        others = Solution.objects.filter(user_id=self.member_user.id).first()
+        self.client.login(username='user1', password='user1')
+        others = Solution.objects.filter(user_id=self.user2.id).first()
         resp = self.client.put(reverse('api:v1:solution_rud', kwargs={'pk': others.id}),
                                data={
                                    'id': others.id,
@@ -180,8 +180,8 @@ class APIViewTest(TestCase):
         self.assertEqual(resp.status_code, 403)
 
     def test_solution_api_view_update_own(self) -> None:
-        self.client.login(username='admin_user', password='admin_user')
-        own = Solution.objects.filter(user_id=self.admin_user.id).first()
+        self.client.login(username='user1', password='user1')
+        own = Solution.objects.filter(user_id=self.user1.id).first()
         resp = self.client.put(reverse('api:v1:solution_rud', kwargs={'pk': own.id}),
                                data={
                                    'id': own.id,

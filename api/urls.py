@@ -5,6 +5,8 @@ from django.urls import (
 )
 
 urlpatterns = [
+    # auth
+    re_path(r'^auth/', include(('api.jwt_auth.urls', 'api.auth'), namespace='auth')),
     # api_v1
-    re_path(r'^api/v1/', include(('api.v1.urls', 'api.v1'), namespace='v1')),
+    re_path(r'^v1/', include(('api.v1.urls', 'api.v1'), namespace='v1')),
 ]
