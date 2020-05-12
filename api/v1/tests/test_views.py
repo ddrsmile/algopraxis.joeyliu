@@ -22,16 +22,16 @@ from api.models import (
 class APIViewTest(TestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         super(APIViewTest, cls).setUpClass()
         cls.client = APIClient()
 
     @classmethod
-    def tearDownClass(cls):
-        pass
+    def tearDownClass(cls) -> None:
+        super(APIViewTest, cls).tearDownClass()
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(cls) -> None:
         cls.admin_user = User.objects.create(username='admin_user', is_superuser=True)
         cls.admin_user.set_password('admin_user')
         cls.admin_user.save()
